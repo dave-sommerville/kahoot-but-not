@@ -16,5 +16,4 @@ db.serialize(() => {
     correctAnswer TEXT NOT NULL
   )`);
 });
-
 module.exports = db;

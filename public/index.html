@@ -6,7 +6,7 @@
     <meta name="author" content="Dave Sommerville">
     <meta name="description" content="Dave Sommerville">
     <meta name="theme-color" content="#ffffff">
-    
+    <script src="/socket.io/socket.io.js"></script>
     <title></title>
     <link rel="icon" href="./src/img/favicon.png" type="image/x-icon">
     
@@ -21,8 +21,7 @@
     <link rel="stylesheet" href="./src/css/reset.css" media="all">
     <link rel="stylesheet" href="./src/css/utils.css" media="all">
     <link rel="stylesheet" href="./src/css/style.css" media="all">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./src/js/app.js" defer></script>
+    <script defer src="./src/js/app.js"></script>
 </head>
 <body>
   <h1>Answer the Question</h1>
@@ -30,14 +29,5 @@
   <input id="answer" placeholder="Your answer">
   <button onclick="submitAnswer()">Submit</button>
 
-  <script>
-    const socket = io();
-
-    function submitAnswer() {
-      const name = document.getElementById('playerName').value;
-      const answer = document.getElementById('answer').value;
-      socket.emit('answer', { name, answer });
-    }
-  </script>
 </body>
 </html>
