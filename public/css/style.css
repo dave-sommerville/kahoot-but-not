@@ -1,0 +1,59 @@
+@charset "utf-8";
+
+/*----------------------------------------------------------->
+  Roots
+<-----------------------------------------------------------*/
+
+:root {
+  --clr-bg: #01091c;
+  --clr-light: #fefefe;
+  --clr-primary: #fe521d;
+  --clr-secondary: #dd6900;
+  --clr-text: #fefefe;
+  --clr-dark: #012;
+  --app-border-rad: 14px;
+  --app-spacing: 25px;
+}
+
+/*----------------------------------------------------------->
+  Utility Functions
+<-----------------------------------------------------------*/
+
+.container {
+  width: min(100% - 30px, 1200px);
+  margin-inline: auto;
+}
+
+.flex {
+  display: flex;
+}
+
+.f-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.ease-quick {
+  transition: all 0.3s ease-in-out;
+}
+
+.ease-slow {
+  transition: all 0.8s ease-in-out;
+}
+
+.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.m-auto {
+  margin: auto;
+}
