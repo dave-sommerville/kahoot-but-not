@@ -19,10 +19,28 @@
     <script defer src="./src/js/app.js"></script>
 </head>
 <body>
-  <h1>Answer the Question</h1>
-  <input id="playerName" placeholder="Your name">
-  <input id="answer" placeholder="Your answer">
-  <button class="submit">Submit</button>
-
+  <header>
+    <h1>Whatever we're gonna call this thing</h1>
+  </header>
+  <main>
+    <!--Here the player will have to enter their name and choose profile images (will hardcode options)-->
+    <section class="player-lobby">
+      <div class="avatar-wrapper">
+        <img src="../img/user-solid.svg">
+      </div>
+      <button class="select-pic">Choose</button>
+      <input id="playerName" placeholder="Enter your name">
+      <button class="select-name">Enter</button>
+    </section>
+    <!--
+      Here will be the game area. The formatting of this will depend on the type of question. 
+      Whe could create formatting for each type of question and then only make the appropriate one visible
+      or we can change the question formatting dynamically with JS and css classes
+    -->
+    <section>
+      <input id="answer" placeholder="Your answer">
+      <button class="submit">Submit</button>
+    </section>
+  </main>
 </body>
 </html>

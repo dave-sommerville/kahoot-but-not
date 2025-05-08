@@ -23,8 +23,55 @@
     <h1>Whatever we're gonna call this thing</h1>
   </header>
   <main>
-    
+    <!--  Lobby will hold placeholders for participants when game is not running. As users join it will update the chosen
+          avatar and user name. Once three users have joined (or at least one) the admin can start the game. 
+          I think we should leave the game control only on the admin frontend.          
+    -->
+    <section class="lobby">
+      <div class="f-col">
+        <h4 class="player-one-status"></h4>
+        <img src="../img/user-solid.svg">
+        <p class="player-one"></p>
+      </div>
+      <div class="f-col">
+        <h4 class="player-two-status"></h4>
+        <img src="../img/user-solid.svg">
+        <p class="player-two"></p>
+      </div>
+      <div class="f-col">
+        <h4 class="player-three-status"></h4>
+        <img src="../img/user-solid.svg">
+        <p class="player-three"></p>
+      </div>
+        <button class="start-cancel"></button>
+    </section>
+    <!--
+      Here will show the player scores for the current game
+      It should update dynamically
+      ALT: We can also add a display to show the current questions when game running
+    -->
+    <section class="score-display">
+      <div class="current-scores">
+        <div>
+          <h4 class="player-one-name"></h4>
+          <p class="player-one-score"></p>
+        </div>
+        <div>
+          <h4 class="player-two-name"></h4>
+          <p class="player-two-score"></p>
+        </div>
+        <div>
+          <h4 class="player-three-name"></h4>
+          <p class="player-three-score"></p>
+        </div>
+      </div>
+      <ul class="high-scores"></ul>
+      <button class="view">View Questions</button>
+    </section>
   </main>
+  <footer>
+
+  </footer>
   <!--
   - First page 
     - Top Scores/Current scores display
