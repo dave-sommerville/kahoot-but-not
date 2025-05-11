@@ -159,8 +159,9 @@ footer {
   width: 800px;
   height: 400px;
   border-radius: var(--app-border-rad);
-  background-color: aliceblue;
+  background-color: #f0f8ff;
   gap: 10px;
+  color: #f0f8ff;
   padding: 10px;
   display: grid;
   grid-template-columns: 1fr 1fr;
