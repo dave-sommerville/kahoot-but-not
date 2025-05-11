@@ -1,4 +1,3 @@
-'use strict'
 'use strict';
 
 /*------------------------------------------------------------------------->
@@ -18,15 +17,21 @@ function isImageFile(file) {
 }
 
 
+// const socket = io();
+// const button = select('.submit');
+
+// function submitAnswer() {
+//   const name = document.getElementById('playerName').value;
+//   const answer = document.getElementById('answer').value;
+//   socket.emit('answer', { name, answer });
+// }
+
+// listen("click", button, () => {
+//   submitAnswer();
+// });
+
 const socket = io();
-const button = select('.submit');
 
-function submitAnswer() {
-  const name = document.getElementById('playerName').value;
-  const answer = document.getElementById('answer').value;
-  socket.emit('answer', { name, answer });
+function sendAdminCommand(cmd) {
+  socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
 }
-
-listen("click", button, () => {
-  submitAnswer();
-});
