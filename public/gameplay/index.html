@@ -24,7 +24,7 @@
   </header>
   <main>
     <!--Here the player will have to enter their name and choose profile images (will hardcode options)-->
-    <section class="player-lobby f-col">
+    <section class="player-lobby f-col hidden">
       <div class="avatar-wrapper">
         <img src="../img/user-solid.svg">
       </div>
@@ -37,7 +37,24 @@
       Whe could create formatting for each type of question and then only make the appropriate one visible
       or we can change the question formatting dynamically with JS and css classes
     -->
-    <section>
+    <section class="question-display f-col">
+      <div class="question-wrapper flex">
+        <p class="question-text">Blah blah blah, which is it?</p>
+      </div>
+      <div class="multiple-choice-wrapper">
+        <div class="option-one">
+          <p class="opt-one-txt">Sample 1</p>
+        </div>
+        <div class="option-two">
+          <p class="opt-two-txt">Sample 2</p>
+        </div>
+        <div class="option-three">
+          <p class="opt-three-txt">Sample 3</p>
+        </div>
+        <div class="option-four">
+          <p class="opt-four-txt">Sample 4</p>
+        </div>
+      </div>
       <input id="answer" placeholder="Your answer">
       <button class="submit">Submit</button>
     </section>
