@@ -1,34 +1,47 @@
 'use strict';
 const socket = io();
+let nickname = "";
 
-// const nickname = prompt("Enter your nickname");
-// socket.emit('player-joined', nickname);
-// const profilePicture = "https://example.com/default-profile.png"; // Replace with your actual image URL or local path
-
-// Emit player joined with nickname and profile picture
-// socket.emit('player-joined', { nickname, profilePicture });
+// Handle player name selection
 document.querySelector('.select-name').addEventListener('click', () => {
-  const name = document.getElementById('playerName').value.trim();
-  if (!name) {
+  nickname = document.getElementById('playerName').value.trim();
+
+  if (!nickname) {
     alert("Please enter your name!");
     return;
   }
 
-  const profilePicture = "https://example.com/default-profile.png"; // or grab from selection logic
-  socket.emit('player-joined', { nickname: name, profilePicture });
+  socket.emit('player-join', nickname);
+  console.log("🔵 Emitted 'player-join' with name:", nickname);
 
-  console.log("🔵 Player emitted:", name);
+  // Optionally disable input/button here
+  document.getElementById('playerName').disabled = true;
+  document.querySelector('.select-name').disabled = true;
 });
-// Submit answer
-function submitAnswer(isCorrect) {
-  socket.emit('submit-answer', { nickname, isCorrect });
-}
 
-// Request leaderboard
-function getLeaderboard() {
-  socket.emit('request-leaderboard');
-  socket.on('leaderboard-data', (data) => {
-    console.log("Leaderboard:", data);
-    // You can display it in your HTML
-  });
-}
+// Confirmation from server
+socket.on('player-joined', (data) => {
+  console.log(" Player joined:", data.name);
+  // Navigate to quiz or show next section
+});
+
+// Receive a question from server
+socket.on('new-question', (question) => {
+  console.log(" New Question Received:", question);
+
+  const questionArea = document.getElementById('questionArea');
+  questionArea.innerText = question.question_text;
+  // Display options if it's MCQ
+});
+
+// Handle answer submission
+document.querySelector('.submit').addEventListener('click', () => {
+  const answer = document.getElementById('answer').value.trim();
+  if (!answer) {
+    alert("Enter an answer!");
+    return;
+  }
+
+  socket.emit('submit-answer', { nickname, answer });
+  console.log(" Submitted answer:", answer);
+});
