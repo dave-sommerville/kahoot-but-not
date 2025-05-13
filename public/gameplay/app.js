@@ -1,5 +1,5 @@
 'use strict';
-const socket = io(); // Connect to the socket server
+const socket = io(); 
 
 // Get nickname from localStorage
 let nickname = localStorage.getItem('nickname') || "";
@@ -9,8 +9,8 @@ if (!nickname) {
   alert("Please sign up first to set your nickname!");
   window.location.href = "./signUp.html";
 } else {
-  console.log("🔵 Nickname fetched from localStorage:", nickname);
-  socket.emit('player-join', nickname); // 🔥 this was missing
+  console.log(" Nickname fetched from localStorage:", nickname);
+  socket.emit('player-join', nickname); // this was missing
 }
 
 // Listen for the 'new-question' event from the server
@@ -30,6 +30,7 @@ socket.on('answer-feedback', (data) => {
     alert("Wrong answer! Try again.");
   }
 });
+
 // Handle answer submission when the player selects an option
 document.querySelector('.submit').addEventListener('click', () => {
   const answer = document.getElementById('answer').value.trim();
@@ -37,7 +38,6 @@ document.querySelector('.submit').addEventListener('click', () => {
     alert("Enter an answer!");
     return;
   }
-
   // Emit the answer to the server
   socket.emit('submit-answer', { nickname, answer });
   console.log("📤 Emitting answer:", answer);

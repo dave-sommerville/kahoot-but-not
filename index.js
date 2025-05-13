@@ -52,10 +52,10 @@ function emitLeaderboardUpdate() {
 const playerStates = {}; // Tracks each player's current question
 
 io.on('connection', (socket) => {
-  console.log('🟢 A user connected:', socket.id);
+  console.log(' A user connected:', socket.id);
 
   socket.on('player-join', (nickname) => {
-    console.log('🙋 Player joined:', nickname);
+    console.log(' Player joined:', nickname);
 
     const insertQuery = `
       INSERT OR IGNORE INTO players (name) VALUES (?)
@@ -63,12 +63,12 @@ io.on('connection', (socket) => {
 
     db.run(insertQuery, [nickname], function (err) {
       if (err) {
-        console.error('❌ Error inserting player:', err.message);
+        console.error(' Error inserting player:', err.message);
         socket.emit('player-error', 'Database error');
         return;
       }
 
-      console.log(`✅ Player ${nickname} saved to DB`);
+      console.log(` Player ${nickname} saved to DB`);
       socket.emit('player-joined', { name: nickname });
       emitLeaderboardUpdate();
       // Assign a new question to the player
@@ -85,12 +85,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('submit-answer', ({ nickname, answer }) => {
-    console.log(`📨 Received answer from ${nickname}: ${answer}`);
+    console.log(` Received answer from ${nickname}: ${answer}`);
 
     const question = playerStates[nickname];
 
     if (!question || !question.correct_option) {
-      console.warn("⚠️ Question is missing or not assigned to player");
+      console.warn(" Question is missing or not assigned to player");
       socket.emit('error', 'No active question to validate.');
       return;
     }
@@ -99,7 +99,7 @@ io.on('connection', (socket) => {
     const userAnswer = answer.trim().toLowerCase();
 
     if (userAnswer === correctAnswer) {
-      console.log("✅ Correct answer!");
+      console.log(" Correct answer!");
 
       // Update player's score in the database
       db.run(`
@@ -109,9 +109,9 @@ io.on('connection', (socket) => {
         WHERE name = ?
       `, [nickname], (err) => {
         if (err) {
-          console.error('❌ Error updating score:', err.message);
+          console.error(' Error updating score:', err.message);
         } else {
-          console.log(`🏆 Score updated for ${nickname}`);
+          console.log(` Score updated for ${nickname}`);
         }
      
       });
@@ -123,14 +123,14 @@ io.on('connection', (socket) => {
           socket.emit('new-question', newQuestion);
           io.emit('new-question', newQuestion);
           // io.emit('leaderboard-update', leaderboard); 
-          console.log("📤 Sent new question");
+          console.log(" Sent new question");
         } else {
           socket.emit('error', 'No more questions available');
         }
       });
       emitLeaderboardUpdate();
     } else {
-      console.log("❌ Wrong answer");
+      console.log(" Wrong answer");
       socket.emit('answer-feedback', {
         correct: false,
         correctAnswer: correctAnswer
@@ -140,14 +140,14 @@ io.on('connection', (socket) => {
 
  // Fetch leaderboard data
   socket.on('get-leaderboard', () => {
-    console.log("📊 Fetching leaderboard...");
+    console.log(" Fetching leaderboard...");
     getLeaderboard((leaderboard) => {
-      socket.emit('leaderboard-update', leaderboard); // Send the leaderboard to the requesting client
+      socket.emit('leaderboard-update', leaderboard); 
     });
   });
 
   socket.on('disconnect', () => {
-    console.log('🔴 A user disconnected:', socket.id);
+    console.log(' A user disconnected:', socket.id);
   });
 });
 
