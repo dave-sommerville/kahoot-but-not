@@ -64,6 +64,7 @@
   display: flex;
   justify-content: center;
   background-color: var(--clr-secondary);
+  margin: 0 var(--app-spacing);
 }
 
 .no-select {
@@ -95,8 +96,8 @@
 <-----------------------------------------------------------*/
 body {
   background-color: var(--clr-bg);
-  
 }
+
 header {
   height: 20svh;
   font-size: 2rem;
@@ -211,23 +212,22 @@ Sign Up
   button {
     margin: var(--app-spacing) 0;
   }
-}
-
-.avatar-wrapper {
-  height: 300px;
-  img {
-    height: 300px;
+  i {
+    font-size: 2rem;
   }
+}
+.picture-chooser {
+  position: relative;
 }
 
 input {
   width: 200px;
   height: 40px;
   border-radius: var(--app-border-rad);
+  margin-top: var(--app-spacing);
 }
-
 /*---------------------------------------------->
-Game Play (question-display, multiple-choice-wrapper (sb answer wrapper))
+Game Play
 <----------------------------------------------*/
 
 .question-display {

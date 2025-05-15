@@ -21,16 +21,23 @@
 </head>
 <body class="no-select">
   <header>
-    <h1>Whatever we're gonna call this thing</h1>
+    <h1>Cyber Clash</h1>
   </header>
   <main class="f-col">
-    <section class="player-lobby">
-      <div class="avatar-wrapper">
-        <img src="../img/user-solid.svg">
-      </div>
-      <button class="select-pic">Choose</button>
+    <section class="player-lobby f-col center">
+        <div class="picture-chooser flex center">
+          <div class="left-arrow">
+            <i class="fa-solid fa-arrow-left"></i>
+          </div>
+          <div class="circle">
+            <img class="avatar" src="../img/user-solid.svg">
+          </div>
+          <div class="right-arrow pointer hover">
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+        </div>
       <input id="playerName" placeholder="Enter your name" class="name-entry">
-      <button class="select-name">Enter</button>
+      <button class="select-name pointer hover">Enter</button>
     </section>
   </main>
 </body>
