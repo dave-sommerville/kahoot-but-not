@@ -19,10 +19,20 @@ app.get('/', (req, res) => {
 });
 
 // Helper to fetch a random question
+// function getRandomQuestion(callback) {
+//   db.get(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
+//     if (err) {
+//       console.error(" Error fetching question:", err.message);
+//       callback(null);
+//     } else {
+//       callback(row);
+//     }
+//   });
+// }
 function getRandomQuestion(callback) {
   db.get(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
     if (err) {
-      console.error(" Error fetching question:", err.message);
+      console.error("Error fetching question:", err.message);
       callback(null);
     } else {
       callback(row);
@@ -95,6 +105,7 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // const correctAnswer = question.correct_option.trim().toLowerCase();
     const correctAnswer = question.correct_option.trim().toLowerCase();
     const userAnswer = answer.trim().toLowerCase();
 
@@ -113,7 +124,6 @@ io.on('connection', (socket) => {
         } else {
           console.log(` Score updated for ${nickname}`);
         }
-     
       });
       // Send the next question
       getRandomQuestion((newQuestion) => {
