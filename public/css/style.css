@@ -79,7 +79,13 @@
   cursor: pointer;
 }
 
-/*Need a hover util*/
+.hover {
+  transition: all 0.2s ease-in-out;
+}
+.hover:hover {
+  filter: brightness(1.2);
+  transform: scale(1.02);
+}
 
 .m-auto {
   margin: auto;
