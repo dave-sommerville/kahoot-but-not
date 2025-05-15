@@ -66,6 +66,14 @@
   background-color: var(--clr-secondary);
 }
 
+.no-select {
+  -webkit-user-select: none; /* Chrome, Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+  user-select: none;         /* Standard */
+}
+
+
 .pointer {
   cursor: pointer;
 }
@@ -87,6 +95,7 @@
 <-----------------------------------------------------------*/
 body {
   background-color: var(--clr-bg);
+  
 }
 header {
   height: 20svh;
@@ -140,6 +149,15 @@ Admin/Viewing
   height: 100px;
   width: 100%;
   overflow: hidden;
+  transition: all 0.2s ease-in-out;
+  h3 {
+    text-align: center;
+    font-size: 1.8rem;
+    height: 100px;
+  }
+}
+.score-display.open {
+  height: 500px;
 }
 .high-scores {
   max-width: 400px;

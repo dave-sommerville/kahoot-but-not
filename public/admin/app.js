@@ -69,3 +69,9 @@ function updateLeaderboard(players) {
     leaderboard.appendChild(entry);
   });
 }
+
+const scoreTrigger = select('.score-trigger');
+const scoreDisplay = select('.score-display');
+listen("click", scoreTrigger, () =>{
+  scoreDisplay.classList.toggle('open');
+});
