@@ -77,7 +77,10 @@
 .sp-btw {
   justify-content: space-evenly;
 }
-
+.center {
+  justify-content: center;
+  align-items: center;
+}
 /*----------------------------------------------------------->
   
 <-----------------------------------------------------------*/
@@ -104,11 +107,10 @@ h1 {
   color: #fefefe;
   text-align: center;
 }
-header {
-}
+
 .lobby {
   width: 550px;
-  height: 350px;
+  height: 325px;
   background-color: var(--clr-bg);
   justify-content: space-evenly;
   border-radius: var(--app-border-rad);
@@ -118,16 +120,19 @@ header {
     line-height: 40px;
 
   }
+  p {
+    text-align: center;
+  }
 }
 .profile {
   height: 100px;
   width: 100px;
 }
 .score-display {
-  height: 450px;
+  height: 100px;
   width: 100%;
   background-color: #fefefe;
-
+  overflow: hidden;
 }
 footer {
   height: 40px;
@@ -225,4 +230,17 @@ footer {
 .high-scores .score {
   text-align: right;
   min-width: 60px;
+}
+.question-display-viewing {
+  height: 400px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  h3 {
+    font-size: 2rem;
+  }
+}
+.viewing {
+  height: 100svh;
+  overflow-y: scroll;
 }
