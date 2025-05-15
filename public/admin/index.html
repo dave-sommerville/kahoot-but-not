@@ -20,7 +20,7 @@
 </head>
 <body>
   <header>
-    <h1>Whatever we're gonna call this thing</h1>
+    <h1>Cyber Clash</h1>
   </header>
   <main class="f-col">
     <!--  Lobby will hold placeholders for participants when game is not running. As users join it will update the chosen
@@ -28,7 +28,7 @@
           I think we should leave the game control only on the admin frontend.          
     -->
     <section class="lobby f-col">
-      <div class="flex">
+      <div class="flex sp-btw">
         <div class="f-col">
           <h4 class="player-one-status">Unoccupied</h4>
           <img class="profile" src="../img/user-solid.svg">
@@ -57,24 +57,8 @@
       ALT: We can also add a display to show the current questions when game running
     -->
     <section class="score-display">
-      <div class="current-scores">
-        <div>
-          <h4 class="player-one-name">Player1</h4>
-          <p class="player-one-score">100</p>
-        </div>
-        <div>
-          <h4 class="player-two-name">Player2</h4>
-          <p class="player-two-score">100</p>
-        </div>
-        <div>
-          <h4 class="player-three-name">Player3</h4>
-          <p class="player-three-score">100</p>
-        </div>
+      <div class="high-scores" id="leaderboard">
       </div>
-      <ul class="high-scores">
-        <li># 1</li>
-        <li>#2</li>
-      </ul>
     </section>
   </main>
   <footer class="flex">
