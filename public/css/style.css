@@ -23,7 +23,9 @@
   --app-border-rad: 14px;
   --app-spacing: 25px;
 }
+/*---------------------------------------------->
 
+<----------------------------------------------*/
 /*----------------------------------------------------------->
   Utility Functions
 <-----------------------------------------------------------*/
@@ -45,19 +47,16 @@
   border-radius: 50%;
   overflow: hidden;
 }
-.ease-quick {
-  transition: all 0.3s ease-in-out;
-}
-
-.ease-slow {
-  transition: all 0.8s ease-in-out;
-}
 
 .hidden {
   display: none;
   opacity: 0;
 }
 
+.hidden {
+  display: none;
+  visibility: hidden;
+}
 .circle {
   border-radius: 50%;
   width: 105px;
@@ -71,10 +70,12 @@
   cursor: pointer;
 }
 
+/*Need a hover util*/
+
 .m-auto {
   margin: auto;
 }
-.sp-btw {
+.sp-even {
   justify-content: space-evenly;
 }
 .center {
@@ -87,27 +88,33 @@
 body {
   background-color: var(--clr-bg);
 }
-main {
-  align-items: center;
+header {
+  height: 20svh;
+  font-size: 2rem;
+  color: #fefefe;
+  text-align: center;
 }
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 80svh;
+  overflow-y: scroll;
+}
+
 button {
   height: 40px;
   width: 80px;
   border-radius: var(--app-border-rad);
+  background-color: #bbd876;
+  border: solid 1px #012;
   font-size: 1.2rem;
 }
-input {
-  width: 200px;
-  height: 40px;
-  border-radius: var(--app-border-rad);
-}
 
-h1 {
-  font-size: 3rem;
-  color: #fefefe;
-  text-align: center;
-}
-
+/*---------------------------------------------->
+Admin/Viewing
+<----------------------------------------------*/
 .lobby {
   width: 550px;
   height: 325px;
@@ -118,29 +125,66 @@ h1 {
   h4 {
     font-size: 1.6rem;
     line-height: 40px;
-
   }
   p {
     text-align: center;
   }
 }
+
 .profile {
   height: 100px;
   width: 100px;
 }
+
 .score-display {
   height: 100px;
   width: 100%;
-  background-color: #fefefe;
   overflow: hidden;
 }
-footer {
-  height: 40px;
-  line-height: 40px;
-  justify-content: center;
-  align-items: center;
+.high-scores {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+.high-scores div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 1.1rem;
+}
+
+.high-scores div:first-child {
+  font-weight: bold;
+  color: #d4af37; /* gold color */
+}
+
+.high-scores .name {
+  flex: 1;
+  text-align: left;
+}
+
+.high-scores .score {
+  text-align: right;
+  min-width: 60px;
+}
+.question-display-viewing {
+  height: 400px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  h3 {
+    font-size: 2rem;
+  }
+}
+
+/*---------------------------------------------->
+Sign Up 
+<----------------------------------------------*/
 .player-lobby {
   height: 600px;
   width: 100%;
@@ -149,15 +193,25 @@ footer {
   button {
     margin: var(--app-spacing) 0;
   }
-
 }
+
 .avatar-wrapper {
   height: 300px;
-
   img {
     height: 300px;
   }
 }
+
+input {
+  width: 200px;
+  height: 40px;
+  border-radius: var(--app-border-rad);
+}
+
+/*---------------------------------------------->
+Game Play (question-display, multiple-choice-wrapper (sb answer wrapper))
+<----------------------------------------------*/
+
 .question-display {
   width: 100%;
   height: 70svh;
@@ -200,47 +254,3 @@ footer {
   }
 }
 
-.high-scores {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 1rem 2rem;
-  background: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.high-scores div {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #ddd;
-  font-size: 1.1rem;
-}
-
-.high-scores div:first-child {
-  font-weight: bold;
-  color: #d4af37; /* gold color */
-}
-
-.high-scores .name {
-  flex: 1;
-  text-align: left;
-}
-
-.high-scores .score {
-  text-align: right;
-  min-width: 60px;
-}
-.question-display-viewing {
-  height: 400px;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  h3 {
-    font-size: 2rem;
-  }
-}
-.viewing {
-  height: 100svh;
-  overflow-y: scroll;
-}
