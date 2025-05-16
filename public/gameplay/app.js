@@ -1,5 +1,4 @@
-'use strict';
-const socket = io();
+const socket = io()
 let nickname = "";
 
 // Handle player name selection
@@ -10,13 +9,12 @@ document.querySelector('.select-name').addEventListener('click', () => {
     alert("Please enter your name!");
     return;
   }
-
   socket.emit('player-join', nickname);
   console.log("🔵 Emitted 'player-join' with name:", nickname);
 
   // Optionally disable input/button here
-  document.getElementById('playerName').disabled = true;
-  document.querySelector('.select-name').disabled = true;
+  // document.getElementById('playerName').disabled = true;
+  // document.querySelector('.select-name').disabled = true;
 });
 
 // Confirmation from server
@@ -44,4 +42,12 @@ document.querySelector('.submit').addEventListener('click', () => {
 
   socket.emit('submit-answer', { nickname, answer });
   console.log(" Submitted answer:", answer);
+});
+
+socket.on("answer-feedback", (data) => {
+  if (data.correct) {
+    alert("✅ Correct!");
+  } else {
+    alert(`❌ Incorrect! The correct answer is: ${data.correctAnswer}`);
+  }
 });
