@@ -1,31 +1,35 @@
 'use strict';
-const socket = io(); 
+function select(selector, scope = document) {
+  return scope.querySelector(selector);
+}
 
-// Get nickname from localStorage
+function listen(event, selector, callback) {
+  return selector.addEventListener(event, callback);
+}
+
+const socket = io(); 
+const mcqWrapper = document.querySelector('.multiple-choice-wrapper');
+const tfWrapper = document.querySelector('.true-false-wrapper');
+const questiontxt =  document.querySelector('.question-text');
+const allQuestype = document.querySelectorAll('.multiple-choice-wrapper div, .true-false-wrapper div');
+const selectedElements = document.querySelectorAll('.selected');
+const submitBtn = document.querySelector('.submit');
+
 let nickname = localStorage.getItem('nickname') || "";
 
-// If the nickname does not exist, redirect to sign-up page
 if (!nickname) {
   alert("Please sign up first to set your nickname!");
   window.location.href = "./signUp.html";
 } else {
   console.log(" Nickname fetched from localStorage:", nickname);
-  socket.emit('player-join', nickname); // this was missing
+  socket.emit('player-join', nickname); 
 }
 
-// Listen for the 'new-question' event from the server
 socket.on('new-question', (question) => {
   console.log("🟢 New Question Received:", question);
-  document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+  selectedElements.forEach(el => el.classList.remove('selected', 'wrong', 'correct'));
 
-  document.querySelector('.question-text').innerText = question.question_text;
-
-  // document.querySelector('.opt-one-txt').innerText = question.option_a;
-  // document.querySelector('.opt-two-txt').innerText = question.option_b;
-  // document.querySelector('.opt-three-txt').innerText = question.option_c;
-  // document.querySelector('.opt-four-txt').innerText = question.option_d;
-  const mcqWrapper = document.querySelector('.multiple-choice-wrapper');
-  const tfWrapper = document.querySelector('.true-false-wrapper');
+  questiontxt.innerText = question.question_text;
 
   if (question.question_type === 'tf') {
     mcqWrapper.style.display = 'none';
@@ -40,74 +44,58 @@ socket.on('new-question', (question) => {
     document.querySelector('.opt-three-txt').innerText = question.option_c;
     document.querySelector('.opt-four-txt').innerText = question.option_d;
   }
-  // document.getElementById('answer').value = '';
 });
 
 socket.on('answer-feedback', (data) => {
-  if (!data.correct) {
-    alert("Wrong answer! Try again.");
+  allQuestype.forEach(option => {
+    option.classList.remove('correct', 'wrong', 'selected');
+  });
+
+  const userAnswer = data.userAnswer.toLowerCase();
+  const correctAnswer = data.correctAnswer.toLowerCase();
+  const isCorrect = userAnswer === correctAnswer;
+
+  allQuestype.forEach(option => {
+    const optionText = option.querySelector('p').innerText.trim().toLowerCase();
+
+    if (optionText === correctAnswer) {
+      option.classList.add('correct');
+    }
+
+    if (optionText === userAnswer && userAnswer !== correctAnswer) {
+      option.classList.add('wrong');
+    }
+  });
+
+  if (isCorrect) {
+    socket.emit('next-question');
+  } else {
+    setTimeout(() => {
+      socket.emit('next-question');
+    }, 2000); 
   }
 });
 
-// Handle answer submission when the player selects an option
-// document.querySelector('.submit').addEventListener('click', () => {
-//   const answer = document.getElementById('answer').value.trim();
-//   if (!answer) {
-//     alert("Enter an answer!");
-//     return;
-//   }
-//   // Emit the answer to the server
-//   socket.emit('submit-answer', { nickname, answer });
-//   console.log("📤 Emitting answer:", answer);
-// });
-
-
-  // let answer = '';
-  // if (document.querySelector('.true-false-wrapper').style.display === 'block') {
-  //   // Get selected TF option
-  //   const selected = document.querySelector('input[name="tf-option"]:checked');
-  //   if (selected) {
-  //     answer = selected.value;
-  //   }
-  // } else {
-  //   // Get selected MCQ option
-  //   const selected = document.querySelector('input[name="mcq-option"]:checked');
-  //   if (selected) {
-  //     answer = selected.value;
-  //   }
-  // }
-
-  // if (!answer) {
-  //   alert("Please select an answer!");
-  //   return;
-  // }
-
-  // socket.emit('submit-answer', { nickname, answer });
-
 let selectedAnswer = '';
 
-document.querySelectorAll('.multiple-choice-wrapper div, .true-false-wrapper div').forEach(optionDiv => {
+allQuestype.forEach(optionDiv => {
   optionDiv.addEventListener('click', () => {
-    // Clear previous selection
-    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-
-    // Mark this one
+    const newselected = document.querySelectorAll('.selected');
+    newselected.forEach(el => {
+      el.classList.remove('selected');
+      el.classList.remove('wrong');
+      el.classList.remove('correct');
+    });
     optionDiv.classList.add('selected');
-
-    // Extract text from p tag
     selectedAnswer = optionDiv.querySelector('p').innerText.trim();
   });
 });
 
-document.querySelector('.submit').addEventListener('click', () => {
-  // console.log("User Answer:", `"${userAnswer}"`);
-  // console.log("Correct Answer:", `"${correctAnswer}"`);
-  // console.log("Match?", userAnswer === correctAnswer);
+submitBtn.addEventListener('click', () => {
   if (!selectedAnswer) {
     alert("Please select an answer!");
     return;
   }
-
   console.log(` Received answer from ${nickname}: ${selectedAnswer}`);
   socket.emit('submit-answer', { nickname, answer: selectedAnswer });
   console.log("User Answer:", `"${selectedAnswer}"`);

@@ -1,18 +1,26 @@
 'use strict';
-const socket = io(); // Connect to the server
+function select(selector, scope = document) {
+  return scope.querySelector(selector);
+}
 
-// Request the leaderboard when the page loads
+function listen(event, selector, callback) {
+  return selector.addEventListener(event, callback);
+}
+
+const socket = io(); 
+const questionText = document.getElementById('question-text');
+const leaderboard = document.getElementById('leaderboard');
+
+
 socket.emit('get-leaderboard');
 
-// Handle leaderboard update
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
 });
 
-// Listen for question updates from the server
 socket.on('new-question', (question) => {
-  const questionText = document.getElementById('question-text');
+  // const questionText = document.getElementById('question-text');
   if (questionText && question && question.question_text) {
     questionText.textContent = question.question_text;
   } else {
@@ -20,12 +28,10 @@ socket.on('new-question', (question) => {
   }
 });
 
-// Leaderboard update logic
 function updateLeaderboard(players) {
-  const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = ''; // Clear existing content
+  // const leaderboard = document.getElementById('leaderboard');
+  leaderboard.innerHTML = ''; 
 
-  // Optional: sort players by score in descending order
   players.sort((a, b) => b.score - a.score);
 
   players.forEach((player, index) => {

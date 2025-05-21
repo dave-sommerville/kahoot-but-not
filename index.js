@@ -18,17 +18,6 @@ app.get('/', (req, res) => {
   res.send('<h1>Welcome to Cyber Clash 🎮</h1><p>Go to <a href="gameplay/index.html">Gameplay</a> or <a href="admin/index.html">Admin</a></p> or <a href="gameplay/signUp.html">SignUp</a> or <a href="viewing/index.html">viewing</a>');
 });
 
-// Helper to fetch a random question
-// function getRandomQuestion(callback) {
-//   db.get(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
-//     if (err) {
-//       console.error(" Error fetching question:", err.message);
-//       callback(null);
-//     } else {
-//       callback(row);
-//     }
-//   });
-// }
 function getRandomQuestion(callback) {
   db.get(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
     if (err) {
@@ -40,8 +29,6 @@ function getRandomQuestion(callback) {
   });
 }
 
-//-----------**leaderboard**----------------//
-// Fetch leaderboard data
 function getLeaderboard(callback) {
   db.all(`SELECT name, score FROM players ORDER BY score DESC LIMIT 10`, [], (err, rows) => {
     if (err) {
@@ -55,16 +42,16 @@ function getLeaderboard(callback) {
 
 function emitLeaderboardUpdate() {
   getLeaderboard((leaderboard) => {
-    io.emit('leaderboard-update', leaderboard); // Emit the leaderboard to all connected clients
+    io.emit('leaderboard-update', leaderboard); 
   });
 }
 
-const playerStates = {}; // Tracks each player's current question
-
+const playerStates = {};
 io.on('connection', (socket) => {
   console.log(' A user connected:', socket.id);
 
   socket.on('player-join', (nickname) => {
+    socket.nickname = nickname;
     console.log(' Player joined:', nickname);
 
     const insertQuery = `
@@ -81,7 +68,6 @@ io.on('connection', (socket) => {
       console.log(` Player ${nickname} saved to DB`);
       socket.emit('player-joined', { name: nickname });
       emitLeaderboardUpdate();
-      // Assign a new question to the player
       getRandomQuestion((question) => {
         if (!question) {
           socket.emit('new-question', { question_text: 'No questions available yet!' });
@@ -105,14 +91,14 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // const correctAnswer = question.correct_option.trim().toLowerCase();
     const correctAnswer = question.correct_option.trim().toLowerCase();
     const userAnswer = answer.trim().toLowerCase();
 
-    if (userAnswer === correctAnswer) {
+    const isCorrect = userAnswer === correctAnswer;
+
+    if (isCorrect) {
       console.log(" Correct answer!");
 
-      // Update player's score in the database
       db.run(`
         UPDATE players
         SET score = score + 1,
@@ -125,30 +111,44 @@ io.on('connection', (socket) => {
           console.log(` Score updated for ${nickname}`);
         }
       });
-      // Send the next question
-      getRandomQuestion((newQuestion) => {
-        if (newQuestion) {
-          playerStates[nickname] = newQuestion;
-          socket.emit('answer-feedback', { correct: true });
-          socket.emit('new-question', newQuestion);
-          io.emit('new-question', newQuestion);
-          // io.emit('leaderboard-update', leaderboard); 
-          console.log(" Sent new question");
-        } else {
-          socket.emit('error', 'No more questions available');
-        }
+
+      socket.emit('answer-feedback', {
+        correct: true,
+        correctAnswer,
+        userAnswer
       });
+
       emitLeaderboardUpdate();
+
     } else {
       console.log(" Wrong answer");
       socket.emit('answer-feedback', {
         correct: false,
-        correctAnswer: correctAnswer
+        correctAnswer,
+        userAnswer
       });
     }
   });
 
- // Fetch leaderboard data
+  socket.on('next-question', () => {
+    const nickname = socket.nickname;
+    if (!nickname) {
+      socket.emit('error', 'No active player session');
+      return;
+    }
+
+    getRandomQuestion((question) => {
+      if (question) {
+        playerStates[nickname] = question;
+        socket.emit('answer-feedback', { correct: true });
+        socket.emit('new-question', question);
+        io.emit('new-question', question);
+      } else {
+        socket.emit('error', 'No more questions available');
+      }
+    });
+  });
+
   socket.on('get-leaderboard', () => {
     console.log(" Fetching leaderboard...");
     getLeaderboard((leaderboard) => {

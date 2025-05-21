@@ -1,9 +1,7 @@
 'use strict';
-// db.js
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./quiz.db');
 
-// Create players table
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS players (
@@ -14,7 +12,6 @@ db.serialize(() => {
     )
   `);
 
-  // Create questions table
   db.run(`
     CREATE TABLE IF NOT EXISTS questions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +25,6 @@ db.serialize(() => {
     )
   `);
 
-  // Create player_answers table
   db.run(`
     CREATE TABLE IF NOT EXISTS player_answers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,21 +38,6 @@ db.serialize(() => {
   `);
 });
 
-// db.run(`
-//   INSERT INTO questions (question_text, option_a, option_b, option_c, option_d, correct_option)
-//   VALUES 
-//     ('What does HTTP stand for?', 'HyperText Transfer Protocol', 'HighText Transfer Protocol', 'HyperTransfer Text Protocol', 'None of the above', 'a'),
-//     ('Which port is used for HTTPS?', '80', '22', '443', '21', 'c'),
-//     ('What is the main purpose of a firewall?', 'To speed up internet', 'To prevent unauthorized access', 'To manage bandwidth', 'To store cookies', 'b'),
-//     ('What does DNS stand for?', 'Domain Name System', 'Digital Network Service', 'Direct Name Server', 'Data Name Service', 'a'),
-//     ('Which one is a strong password?', 'password123', 'abcde', 'Qw!8$zY1', '123456', 'c')
-// `, (err) => {
-//   if (err) {
-//     console.error(" Error inserting sample questions:", err.message);
-//   } else {
-//     console.log(" Sample questions inserted into the database.");
-//   }
-// });
 db.run(`
   INSERT INTO questions (question_text, option_a, option_b, option_c, option_d, correct_option, question_type)
   VALUES 
