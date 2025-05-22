@@ -52,5 +52,21 @@ document.querySelector('.submit').addEventListener('click', () => {
   }
   // Emit the answer to the server
   socket.emit('submit-answer', { nickname, answer });
-  console.log("📤 Emitting answer:", answer);
+  console.log("📤 Submitted answer:", answer);
+});
+
+socket.on("answer-feedback", (data) => {
+  if (data.correct) {
+    alert("✅ Correct!");
+  } else {
+    alert(`❌ Incorrect! The correct answer is: ${data.correctAnswer}`);
+  }
+});
+
+socket.on("answer-feedback", (data) => {
+  if (data.correct) {
+    alert("✅ Correct!");
+  } else {
+    alert(`❌ Incorrect! The correct answer is: ${data.correctAnswer}`);
+  }
 });

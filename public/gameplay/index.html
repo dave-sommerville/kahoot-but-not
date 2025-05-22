@@ -17,13 +17,34 @@
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">    
-    <script defer src="./app.js"></script>
-</head>
-<body class="no-select">
+    <script src="app.js" defer></script>
+  </head>
+<body>
   <header>
     <h1>Cyber Clash</h1>
   </header>
-  <main class="f-col">
+  <main>
+    <!--Here the player will have to enter their name and choose profile images (will hardcode options)-->
+    <section class="player-lobby f-col">
+      <div class="avatar-wrapper">
+        <img src="../img/user-solid.svg">
+      </div>
+      <button class="select-pic">Choose</button>
+      <input id="playerName" placeholder="Enter your name" class="name-entry">
+      <button class="select-name">Enter</button>
+    </section>
+    <!--
+      Here will be the game area. The formatting of this will depend on the type of question. 
+      Whe could create formatting for each type of question and then only make the appropriate one visible
+      or we can change the question formatting dynamically with JS and css classes
+    -->
+
+    <div id="questionArea" class="question-wrapper flex">
+      <p class="question-text">Blah blah blah, which is it?</p>
+    </div>
+    
+    <input id="answer" placeholder="Your answer">
+    <button class="submit">Submit</button>
     <section class="question-display f-col">
       <div class="question-wrapper flex">
         <p class="question-text">Blah blah blah, which is it?</p>
@@ -52,5 +73,6 @@
       <button class="submit">Submit</button>
     </section>
   </main>
+  <script src="/socket.io/socket.io.js"></script>
 </body>
 </html>
