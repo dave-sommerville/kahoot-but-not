@@ -1,17 +1,17 @@
 'use strict';
-
 function select(selector, scope = document) {
   return scope.querySelector(selector);
 }
 
-function listen(event, element, callback) {
-  return element.addEventListener(event, callback);
+function listen(event, selector, callback) {
+  return selector.addEventListener(event, callback);
 }
 
-// Get the DOM element for the 'select-name' button
-document.querySelector('.select-name').addEventListener('click', () => {
-  const nickname = document.getElementById('playerName').value.trim();
+const selectName = document.querySelector('.select-name');
+const playerName = document.getElementById('playerName');
 
+selectName.addEventListener('click', () => {
+  const nickname = playerName.value.trim();
   if (!nickname) {
     alert("Please enter your name!");
     return;

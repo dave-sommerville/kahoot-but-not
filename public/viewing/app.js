@@ -1,4 +1,17 @@
 'use strict';
+function select(selector, scope = document) {
+  return scope.querySelector(selector);
+}
+
+function listen(event, selector, callback) {
+  return selector.addEventListener(event, callback);
+}
+
+const socket = io(); 
+const questionText = document.getElementById('question-text');
+const leaderboard = document.getElementById('leaderboard');
+
+
 
 socket.on('leaderboard-data', (data) => {
   updateLeaderboardUI(data); // Implement this to update the DOM
@@ -33,12 +46,10 @@ function updateLeaderboardUI(data) {
 }
 
 'use strict';
-const socket = io(); // default namespace
 
 // Request the leaderboard when the page loads
 socket.emit('get-leaderboard');
 
-// Handle leaderboard update
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
@@ -75,13 +86,11 @@ socket.on('new-question', (question) => {
   // document.getElementById('answer').value = '';
 });
 
-// Leaderboard update logic
 function updateLeaderboard(players) {
-  const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = ''; // Clear existing content
+  // const leaderboard = document.getElementById('leaderboard');
+  leaderboard.innerHTML = ''; 
 
-  // Optional: sort players by score in descending order
-  // players.sort((a, b) => b.score - a.score);
+  players.sort((a, b) => b.score - a.score);
 
   players.forEach((player, index) => {
     const entry = document.createElement('div');

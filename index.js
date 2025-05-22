@@ -31,6 +31,7 @@ function getRandomQuestion(callback) {
   db.get(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
     if (err) {
       console.error("Error fetching question:", err.message);
+      console.error("Error fetching question:", err.message);
       callback(null);
     } else {
       callback(row);
@@ -92,25 +93,59 @@ io.on('connection', (socket) => {
     const correctAnswer = question.correct_option.trim().toLowerCase();
     const userAnswer = answer.trim().toLowerCase();
 
-    if (userAnswer === correctAnswer) {
-      db.run(`UPDATE players SET score = score + 1, correct_answer = correct_answer + 1 WHERE name = ?`, [nickname], (err) => {
-        if (err) console.error('Score update failed:', err.message);
-      });
+    const isCorrect = userAnswer === correctAnswer;
 
-      getRandomQuestion((newQuestion) => {
-        if (newQuestion) {
-          playerStates[nickname] = newQuestion;
-          socket.emit('answer-feedback', { correct: true });
-          socket.emit('new-question', newQuestion);
-          io.emit('new-question', newQuestion);
-          emitLeaderboardUpdate();
+    if (isCorrect) {
+      console.log(" Correct answer!");
+
+      db.run(`
+        UPDATE players
+        SET score = score + 1,
+            correct_answer = correct_answer + 1
+        WHERE name = ?
+      `, [nickname], (err) => {
+        if (err) {
+          console.error(' Error updating score:', err.message);
         } else {
-          socket.emit('error', 'No more questions');
+          console.log(` Score updated for ${nickname}`);
         }
       });
+
+      socket.emit('answer-feedback', {
+        correct: true,
+        correctAnswer,
+        userAnswer
+      });
+
+      emitLeaderboardUpdate();
+
     } else {
-      socket.emit('answer-feedback', { correct: false, correctAnswer });
+      console.log(" Wrong answer");
+      socket.emit('answer-feedback', {
+        correct: false,
+        correctAnswer,
+        userAnswer
+      });
     }
+  });
+
+  socket.on('next-question', () => {
+    const nickname = socket.nickname;
+    if (!nickname) {
+      socket.emit('error', 'No active player session');
+      return;
+    }
+
+    getRandomQuestion((question) => {
+      if (question) {
+        playerStates[nickname] = question;
+        socket.emit('answer-feedback', { correct: true });
+        socket.emit('new-question', question);
+        io.emit('new-question', question);
+      } else {
+        socket.emit('error', 'No more questions available');
+      }
+    });
   });
 
   socket.on('get-leaderboard', () => {
