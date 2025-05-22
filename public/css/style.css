@@ -115,17 +115,16 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 80svh;
-  overflow-y: scroll;
 }
 
 button {
-  height: 40px;
-  width: 80px;
+  /* height: 40px;
+  width: 80px; */
   border-radius: var(--app-border-rad);
   background-color: #bbd876;
   border: solid 1px #012;
   font-size: 1.2rem;
+  padding: 1.75rem; 
 }
 
 /*---------------------------------------------->
@@ -145,6 +144,13 @@ Admin/Viewing
   p {
     text-align: center;
   }
+}
+
+.avatar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
 }
 
 .profile {

@@ -1,5 +1,5 @@
 'use strict';
-const socket = io(); 
+const socket = io(); // default namespace
 
 // Get nickname from localStorage
 let nickname = localStorage.getItem('nickname') || "";
@@ -12,6 +12,18 @@ if (!nickname) {
   console.log(" Nickname fetched from localStorage:", nickname);
   socket.emit('player-join', nickname); // this was missing
 }
+
+
+// document.querySelector('#join-btn').addEventListener('click', () => {
+//   const nickname = document.querySelector('#nickname').value;
+//   if (!nickname) return;
+
+//   // Emit player join with avatar
+//   socket.emit('player-join', {
+//     nickname,
+//     avatar: profilePic
+//   });
+// });
 
 // Listen for the 'new-question' event from the server
 socket.on('new-question', (question) => {

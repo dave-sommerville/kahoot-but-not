@@ -15,14 +15,24 @@ document.querySelector('.select-name').addEventListener('click', () => {
   if (!nickname) {
     alert("Please enter your name!");
     return;
-  } 
+  }
 
-  // Save nickname to localStorage
+  // Save to localStorage (optional but handy for later use)
   localStorage.setItem("nickname", nickname);
+  localStorage.setItem("avatar", profilePic || "../img/user-solid.svg");
 
-  // Redirect to game page
-  window.location.href = "./index.html";
+  const socket = io();
+
+  socket.emit('player-join', {
+    nickname: nickname,
+    avatar: profilePic || "../img/user-solid.svg"
+  });
+
+  socket.on('player-joined', () => {
+    window.location.href = "./index.html";
+  });
 });
+
 
 let profilePic = "";
 let imageIndex = 0;

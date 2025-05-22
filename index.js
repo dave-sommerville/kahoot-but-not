@@ -15,14 +15,22 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.send('<h1>Welcome to Cyber Clash 🎮</h1><p>Go to <a href="gameplay/index.html">Gameplay</a> or <a href="admin/index.html">Admin</a></p> or <a href="gameplay/signUp.html">SignUp</a> or <a href="viewing/index.html">viewing</a>');
+  res.send(`
+    <h1>Welcome to Cyber Clash 🎮</h1>
+    <p>
+      Go to 
+      <a href="/gameplay/index.html">Gameplay</a>, 
+      <a href="/admin/index.html">Admin</a>, or 
+      <a href="/viewing/index.html">Viewing</a>
+    </p>
+  `);
 });
 
-// Helper to fetch a random question
+// --- Helper Functions ---
 function getRandomQuestion(callback) {
   db.get(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
     if (err) {
-      console.error(" Error fetching question:", err.message);
+      console.error("Error fetching question:", err.message);
       callback(null);
     } else {
       callback(row);
@@ -30,12 +38,10 @@ function getRandomQuestion(callback) {
   });
 }
 
-//-----------**leaderboard**----------------//
-// Fetch leaderboard data
 function getLeaderboard(callback) {
-  db.all(`SELECT name, score FROM players ORDER BY score DESC LIMIT 10`, [], (err, rows) => {
+  db.all(`SELECT name, score, avatar FROM players ORDER BY score DESC LIMIT 10`, [], (err, rows) => {
     if (err) {
-      console.error(" Error fetching leaderboard:", err.message);
+      console.error("Error fetching leaderboard:", err.message);
       callback([]);
     } else {
       callback(rows);
@@ -45,53 +51,41 @@ function getLeaderboard(callback) {
 
 function emitLeaderboardUpdate() {
   getLeaderboard((leaderboard) => {
-    io.emit('leaderboard-update', leaderboard); // Emit the leaderboard to all connected clients
+    io.emit('leaderboard-update', leaderboard);
   });
 }
 
-const playerStates = {}; // Tracks each player's current question
+const playerStates = {}; // Stores current question per player
 
+// --- Main Socket.IO logic ---
 io.on('connection', (socket) => {
-  console.log(' A user connected:', socket.id);
+  console.log('User connected:', socket.id);
 
-  socket.on('player-join', (nickname) => {
-    console.log(' Player joined:', nickname);
-
-    const insertQuery = `
-      INSERT OR IGNORE INTO players (name) VALUES (?)
-    `;
-
-    db.run(insertQuery, [nickname], function (err) {
+  socket.on('player-join', ({ nickname, avatar }) => {
+    db.run(`INSERT OR IGNORE INTO players (name, avatar) VALUES (?, ?)`, [nickname, avatar], (err) => {
       if (err) {
-        console.error(' Error inserting player:', err.message);
+        console.error('Error inserting player:', err.message);
         socket.emit('player-error', 'Database error');
         return;
       }
-
-      console.log(` Player ${nickname} saved to DB`);
-      socket.emit('player-joined', { name: nickname });
+      socket.emit('player-joined', { name: nickname, avatar });
       emitLeaderboardUpdate();
-      // Assign a new question to the player
+
+      playerStates[nickname] = { avatar };
+
+      io.emit('player-update', { name: nickname, avatar });
+
       getRandomQuestion((question) => {
-        if (!question) {
-          socket.emit('new-question', { question_text: 'No questions available yet!' });
-        } else {
-          playerStates[nickname] = question;
-          socket.emit('new-question', question);
-          io.emit('new-question', question);
-        }
+        playerStates[nickname] = question || { question_text: 'No questions available yet!' };
+        io.emit('new-question', playerStates[nickname]);
       });
     });
   });
 
   socket.on('submit-answer', ({ nickname, answer }) => {
-    console.log(` Received answer from ${nickname}: ${answer}`);
-
     const question = playerStates[nickname];
-
     if (!question || !question.correct_option) {
-      console.warn(" Question is missing or not assigned to player");
-      socket.emit('error', 'No active question to validate.');
+      socket.emit('error', 'No active question');
       return;
     }
 
@@ -99,58 +93,88 @@ io.on('connection', (socket) => {
     const userAnswer = answer.trim().toLowerCase();
 
     if (userAnswer === correctAnswer) {
-      console.log(" Correct answer!");
-
-      // Update player's score in the database
-      db.run(`
-        UPDATE players
-        SET score = score + 1,
-            correct_answer = correct_answer + 1
-        WHERE name = ?
-      `, [nickname], (err) => {
-        if (err) {
-          console.error(' Error updating score:', err.message);
-        } else {
-          console.log(` Score updated for ${nickname}`);
-        }
-     
+      db.run(`UPDATE players SET score = score + 1, correct_answer = correct_answer + 1 WHERE name = ?`, [nickname], (err) => {
+        if (err) console.error('Score update failed:', err.message);
       });
-      // Send the next question
+
       getRandomQuestion((newQuestion) => {
         if (newQuestion) {
           playerStates[nickname] = newQuestion;
           socket.emit('answer-feedback', { correct: true });
           socket.emit('new-question', newQuestion);
           io.emit('new-question', newQuestion);
-          // io.emit('leaderboard-update', leaderboard); 
-          console.log(" Sent new question");
+          emitLeaderboardUpdate();
         } else {
-          socket.emit('error', 'No more questions available');
+          socket.emit('error', 'No more questions');
         }
       });
-      emitLeaderboardUpdate();
     } else {
-      console.log(" Wrong answer");
-      socket.emit('answer-feedback', {
-        correct: false,
-        correctAnswer: correctAnswer
-      });
+      socket.emit('answer-feedback', { correct: false, correctAnswer });
     }
   });
 
- // Fetch leaderboard data
   socket.on('get-leaderboard', () => {
-    console.log(" Fetching leaderboard...");
-    getLeaderboard((leaderboard) => {
-      socket.emit('leaderboard-update', leaderboard); 
+    getLeaderboard((players) => {
+      socket.emit('leaderboard-update', players.map(p => ({
+        name: p.name,
+        score: p.score,
+        avatar: p.avatar || '../img/user-solid.svg'
+      })));
+    });
+  });
+
+  socket.on('get-question', () => {
+        getRandomQuestion((question) => {
+          if (question) {
+            io.emit('new-question', question);
+          }
+    });
+  }); 
+
+  socket.on('add-question', (data) => {
+    const { question_text, option_a, option_b, option_c, option_d, correct_option } = data;
+    if (!question_text || !correct_option) {
+      socket.emit('form-status', 'Missing required fields');
+      return;
+    }
+
+    db.run(`
+      INSERT INTO questions (question_text, option_a, option_b, option_c, option_d, correct_option)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [question_text, option_a, option_b, option_c, option_d, correct_option],
+      (err) => {
+        if (err) {
+          console.error('Failed to add question:', err.message);
+          socket.emit('form-status', 'Error saving question');
+        } else {
+          socket.emit('form-status', '✅ Question added successfully!');
+        }
+      }
+    );
+  });
+
+  socket.on('broadcast-new-question', () => {
+    getRandomQuestion((question) => {
+      if (question) {
+        io.emit('new-question', question);
+      }
     });
   });
 
   socket.on('disconnect', () => {
-    console.log(' A user disconnected:', socket.id);
+    console.log('User disconnected:', socket.id);
   });
 });
 
+// --- Start Server ---
 server.listen(PORT, () => {
-  console.log(` Server listening on http://localhost:${PORT}`);
+  console.log(`Server running at http://192.168.2.36:${PORT}`);
 });
+setInterval(emitLeaderboardUpdate, 5000);
+// setInterval(() => {
+//   getRandomQuestion((question) => {
+//     if (question) {
+//       io.emit('new-question', question);
+//     }
+//   });
+// }, 5000);

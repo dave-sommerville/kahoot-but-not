@@ -49,7 +49,7 @@ db.run(`
     ('What is the main purpose of a firewall?', 'To speed up internet', 'To prevent unauthorized access', 'To manage bandwidth', 'To store cookies', 'b'),
     ('What does DNS stand for?', 'Domain Name System', 'Digital Network Service', 'Direct Name Server', 'Data Name Service', 'a'),
     ('Which one is a strong password?', 'password123', 'abcde', 'Qw!8$zY1', '123456', 'c')
-`, (err) => {
+  `, (err) => {
   if (err) {
     console.error(" Error inserting sample questions:", err.message);
   } else {

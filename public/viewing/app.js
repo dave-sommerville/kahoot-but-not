@@ -1,5 +1,5 @@
 'use strict';
-const socket = io(); // Connect to the server
+const socket = io(); // default namespace
 
 // Request the leaderboard when the page loads
 socket.emit('get-leaderboard');
@@ -8,16 +8,37 @@ socket.emit('get-leaderboard');
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
+  updateLobbyPlayers(players);  // new function to update name display
 });
+
+socket.on('player-update', ({ name, avatar }) => {
+  const nameEls = [...document.querySelectorAll('.player-one, .player-two, .player-three')];
+  const iconEls = [...document.querySelectorAll('.player-one-icon, .player-two-icon, .player-three-icon')];
+
+  for (let i = 0; i < nameEls.length; i++) {
+    // Prevent duplicates
+    if (nameEls[i].textContent === name) return;
+
+    // Fill in first empty slot
+    if (nameEls[i].textContent === "Unnamed") {
+      nameEls[i].textContent = name;
+      iconEls[i].src = avatar || "../img/user-solid.svg";
+      break;
+    }
+  }
+});
+
+socket.emit('get-question');
 
 // Listen for question updates from the server
 socket.on('new-question', (question) => {
-  const questionText = document.getElementById('question-text');
-  if (questionText && question && question.question_text) {
-    questionText.textContent = question.question_text;
-  } else {
-    questionText.textContent = 'No questions available';
-  }
+  console.log("🟢 New Question Received:", question);
+  document.querySelector('.question-text').innerText = question.question_text;
+  document.querySelector('.opt-one-txt').innerText = question.option_a;
+  document.querySelector('.opt-two-txt').innerText = question.option_b;
+  document.querySelector('.opt-three-txt').innerText = question.option_c;
+  document.querySelector('.opt-four-txt').innerText = question.option_d;
+  // document.getElementById('answer').value = '';
 });
 
 // Leaderboard update logic
@@ -26,15 +47,49 @@ function updateLeaderboard(players) {
   leaderboard.innerHTML = ''; // Clear existing content
 
   // Optional: sort players by score in descending order
-  players.sort((a, b) => b.score - a.score);
+  // players.sort((a, b) => b.score - a.score);
 
   players.forEach((player, index) => {
     const entry = document.createElement('div');
     entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
     leaderboard.appendChild(entry);
   });
+
+    players.forEach((player, index) => {
+    const entry = document.createElement('div');
+    entry.classList.add('leaderboard-entry');
+
+    const avatarImg = document.createElement('img');
+    avatarImg.src = (player.avatar && player.avatar !== 'null') ? player.avatar : "../img/user-solid.svg";
+    avatarImg.classList.add('avatar-icon');
+
+    const text = document.createElement('span');
+    text.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
+
+    entry.appendChild(avatarImg);
+    entry.appendChild(text);
+    leaderboard.appendChild(entry);
+  });
 }
-'use strict';
+
+const playerClassMap = ['one', 'two', 'three'];
+function updateLobbyPlayers(players) {
+  for (let i = 0; i < 3; i++) {
+    const name = players[i]?.name || "Unnamed";
+    const avatar = (players[i]?.avatar && players[i].avatar !== 'null') ? players[i].avatar : "../img/user-solid.svg";
+    const status = players[i] ? "Connected" : "Unoccupied";
+
+    const nameEl = document.querySelector(`.player-${playerClassMap[i]}`);
+    const statusEl = document.querySelector(`.player-${playerClassMap[i]}-status`);
+    const avatarEl = document.querySelector(`.player-${playerClassMap[i]}-icon`);
+
+    if (nameEl) nameEl.textContent = name;
+    if (statusEl) statusEl.textContent = status;
+    if (avatarEl) avatarEl.src = avatar;
+  }
+}
+
+
 
 /*------------------------------------------------------------------------->
   Utility Functions 
