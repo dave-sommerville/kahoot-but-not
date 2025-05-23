@@ -48,6 +48,21 @@ function emitLeaderboardUpdate() {
 
 const playerStates = {};
 io.on('connection', (socket) => {
+  socket.on('startGame', () => {
+    console.log('🟢 Game started by admin');
+    io.emit('gameStarted'); // Send to everyone
+  });
+
+  socket.on('pauseGame', () => {
+    console.log('⏸️ Game paused by admin');
+    io.emit('gamePaused');
+  });
+
+  socket.on('stopGame', () => {
+    console.log('🔴 Game stopped by admin');
+    io.emit('gameStopped');
+  });
+
   console.log(' A user connected:', socket.id);
 
   socket.on('player-join', (nickname) => {

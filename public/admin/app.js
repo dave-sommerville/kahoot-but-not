@@ -1,9 +1,5 @@
 'use strict';
 
-/*------------------------------------------------------------------------->
-  Utility Functions 
-<-------------------------------------------------------------------------*/
-
 function select(selector, scope = document) {
   return scope.querySelector(selector);
 }
@@ -16,36 +12,35 @@ function isImageFile(file) {
   return file && file.type.startsWith('image');
 }
 
-
-// const socket = io();
-// const button = select('.submit');
-
-// function submitAnswer() {
-//   const name = document.getElementById('playerName').value;
-//   const answer = document.getElementById('answer').value;
-//   socket.emit('answer', { name, answer });
+const socket = io(); 
+const scoreTrigger = select('.score-trigger');
+const scoreDisplay = select('.score-display');
+const startBtn = select('.start');
+const pauseBtn = select('.pause');
+const stopBtn = select('.stop');
+// function sendAdminCommand(cmd) {
+//   socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
 // }
 
-// listen("click", button, () => {
-//   submitAnswer();
-// });
+listen('click', startBtn, () => {
+  socket.emit('startGame');
+});
 
+listen('click', pauseBtn, () => {
+  socket.emit('pauseGame');
+});
 
-function sendAdminCommand(cmd) {
-  socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
-}
-const socket = io(); // Connect to the server
+listen('click', stopBtn, () => {
+  socket.emit('stopGame');
+});
 
-// Request the leaderboard when the page loads
 socket.emit('get-leaderboard');
 
-// Handle leaderboard update
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
 });
 
-// Listen for question updates from the server
 socket.on('new-question', (question) => {
   const questionText = document.getElementById('question-text');
   if (questionText && question && question.question_text) {
@@ -55,12 +50,10 @@ socket.on('new-question', (question) => {
   }
 });
 
-// Leaderboard update logic
 function updateLeaderboard(players) {
   const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = ''; // Clear existing content
+  leaderboard.innerHTML = ''; 
 
-  // Optional: sort players by score in descending order
   players.sort((a, b) => b.score - a.score);
 
   players.forEach((player, index) => {
@@ -70,8 +63,6 @@ function updateLeaderboard(players) {
   });
 }
 
-const scoreTrigger = select('.score-trigger');
-const scoreDisplay = select('.score-display');
 listen("click", scoreTrigger, () =>{
   scoreDisplay.classList.toggle('open');
 });

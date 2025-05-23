@@ -7,8 +7,19 @@ function listen(event, selector, callback) {
   return selector.addEventListener(event, callback);
 }
 
-const selectName = document.querySelector('.select-name');
-const playerName = document.getElementById('playerName');
+const socket = io();
+const selectName = select('.select-name');
+const playerName = select('#playerName');
+const waitingMessage = select('#waitingMessage');
+const playerLobby = select('#playerLobby');
+
+socket.on('gameStarted', () => {
+  // Hide waiting message
+  waitingMessage.style.display = 'none';
+  // Show player lobby UI
+  playerLobby.style.display = 'flex'; // since you use flex classes
+});
+
 
 selectName.addEventListener('click', () => {
   const nickname = playerName.value.trim();
@@ -17,6 +28,7 @@ selectName.addEventListener('click', () => {
     return;
   } 
   localStorage.setItem("nickname", nickname);
+  localStorage.setItem("profilePic", profilePic || imageFiles[imageIndex]); 
   window.location.href = "./index.html";
 });
 
@@ -28,21 +40,27 @@ const leftArrow = select(".left-arrow");
 
 const imageFiles = ["../img/ded.png", "../img/devil.png", "../img/happy.png", "../img/star.png", "../img/think.png", "../img/wink.png", "../img/worry.png"];
 avatar.src = imageFiles[imageIndex];
+
 listen("click", rightArrow,() => {
   imageIndex++;
   console.log("imageIndex");
-  if (imageIndex === 6) {
+  if (imageIndex === imageFiles.length) {
     imageIndex = 0;
   }
   profilePic = imageFiles[imageIndex];
   avatar.src = profilePic;
+  console.log("Selected avatar index:", imageIndex);
 });
 
 listen("click", leftArrow,() => {
   imageIndex--;
-  if (imageIndex === 0) {
-    imageIndex = 6;
+  // if (imageIndex === 0) {
+  //   imageIndex = 6;
+  // }
+  if (imageIndex < 0) {
+    imageIndex = imageFiles.length - 1;
   }
   profilePic = imageFiles[imageIndex];
   avatar.src = profilePic;
+  console.log("Selected avatar index:", imageIndex);
 });
