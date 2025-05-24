@@ -30,7 +30,7 @@ function getRandomQuestion(callback) {
 }
 
 function getLeaderboard(callback) {
-  db.all(`SELECT name, score FROM players ORDER BY score DESC LIMIT 10`, [], (err, rows) => {
+  db.all(`SELECT name, avatar, score FROM players ORDER BY score DESC LIMIT 10`, [], (err, rows) => {
     if (err) {
       console.error(" Error fetching leaderboard:", err.message);
       callback([]);
@@ -42,11 +42,12 @@ function getLeaderboard(callback) {
 
 function emitLeaderboardUpdate() {
   getLeaderboard((leaderboard) => {
-    io.emit('leaderboard-update', leaderboard); 
+    io.emit('leaderboard-update', leaderboard);
   });
 }
 
 const playerStates = {};
+const viewerPlayers = [];
 io.on('connection', (socket) => {
   socket.on('startGame', () => {
     console.log('🟢 Game started by admin');
@@ -65,34 +66,56 @@ io.on('connection', (socket) => {
 
   console.log(' A user connected:', socket.id);
 
-  socket.on('player-join', (nickname) => {
+  socket.on('player-join', (data) => {
+    let nickname, avatar;
+
+    if (typeof data === 'string') {
+      nickname = data;
+      avatar = 'user-solid.svg'; 
+    } else {
+      ({ name: nickname, avatar = 'user-solid.svg' } = data);
+    }
+
+    if (!nickname) {                
+      socket.emit('player-error', 'Name required');
+      return;
+    }
+
     socket.nickname = nickname;
-    console.log(' Player joined:', nickname);
+    socket.avatar = avatar;
 
-    const insertQuery = `
-      INSERT OR IGNORE INTO players (name) VALUES (?)
-    `;
+    const alreadyExists = viewerPlayers.find(p => p.name === nickname);
+    if (!alreadyExists) {
+      viewerPlayers.push({ name: nickname, avatar }); 
+      console.log(`Player joined: ${nickname} with avatar: ${avatar}`);
+    }
 
-    db.run(insertQuery, [nickname], function (err) {
-      if (err) {
-        console.error(' Error inserting player:', err.message);
-        socket.emit('player-error', 'Database error');
-        return;
-      }
-
-      console.log(` Player ${nickname} saved to DB`);
-      socket.emit('player-joined', { name: nickname });
-      emitLeaderboardUpdate();
-      getRandomQuestion((question) => {
-        if (!question) {
-          socket.emit('new-question', { question_text: 'No questions available yet!' });
-        } else {
-          playerStates[nickname] = question;
-          socket.emit('new-question', question);
-          io.emit('new-question', question);
+    io.emit('viewer-update-players', viewerPlayers);
+    
+    db.run(
+      `INSERT OR IGNORE INTO players (name, avatar) VALUES (?, ?)`,
+      [nickname, avatar],
+      (err) => {
+        if (err) {
+          console.error('DB insert error:', err.message);
+          socket.emit('player-error', 'Database error');
+          return;
         }
-      });
-    });
+        console.log('Emitting player join with avatar:', avatar);
+        socket.emit('player-joined', { name: nickname, avatar });
+        emitLeaderboardUpdate();
+        // send first question…
+        getRandomQuestion((question) => {
+          if (!question) {
+            socket.emit('new-question', { question_text: 'No questions available yet!' });
+          } else {
+            playerStates[nickname] = question;
+            socket.emit('new-question', question);
+            io.emit('new-question', question);
+          }
+        });
+      }
+    );
   });
 
   socket.on('submit-answer', ({ nickname, answer }) => {
@@ -124,6 +147,7 @@ io.on('connection', (socket) => {
           console.error(' Error updating score:', err.message);
         } else {
           console.log(` Score updated for ${nickname}`);
+          emitLeaderboardUpdate();
         }
       });
 
@@ -133,7 +157,7 @@ io.on('connection', (socket) => {
         userAnswer
       });
 
-      emitLeaderboardUpdate();
+      // emitLeaderboardUpdate();
 
     } else {
       console.log(" Wrong answer");
@@ -167,12 +191,17 @@ io.on('connection', (socket) => {
   socket.on('get-leaderboard', () => {
     console.log(" Fetching leaderboard...");
     getLeaderboard((leaderboard) => {
-      socket.emit('leaderboard-update', leaderboard); 
+      socket.emit('leaderboard-update', leaderboard);
     });
   });
 
   socket.on('disconnect', () => {
     console.log(' A user disconnected:', socket.id);
+    if (socket.nickname) {
+      const index = viewerPlayers.findIndex(p => p.name === socket.nickname);
+      if (index !== -1) viewerPlayers.splice(index, 1);
+      io.emit('viewer-update-players', viewerPlayers);
+    }
   });
 });
 

@@ -27,10 +27,19 @@ selectName.addEventListener('click', () => {
     alert("Please enter your name!");
     return;
   } 
-  localStorage.setItem("nickname", nickname);
-  localStorage.setItem("profilePic", profilePic || imageFiles[imageIndex]); 
+  localStorage.setItem('nickname', nickname);
+  // localStorage.setItem('profilePic', profilePic || imageFiles[imageIndex]); 
+  // store only filename, e.g. 'ded.png'
+  localStorage.setItem('profilePic', imageFiles[imageIndex].split('/').pop());
   window.location.href = "./index.html";
 });
+
+// socket.on("connect", () => {
+//   socket.emit("player-join", {
+//     name: localStorage.getItem('nickname'),
+//     avatar: localStorage.getItem('profilePic')
+//   });
+// });
 
 let profilePic = "";
 let imageIndex = 0;
@@ -39,7 +48,9 @@ const rightArrow = select(".right-arrow");
 const leftArrow = select(".left-arrow");
 
 const imageFiles = ["../img/ded.png", "../img/devil.png", "../img/happy.png", "../img/star.png", "../img/think.png", "../img/wink.png", "../img/worry.png"];
-avatar.src = imageFiles[imageIndex];
+// avatar.src = imageFiles[imageIndex];
+profilePic = imageFiles[imageIndex];
+avatar.src = profilePic;
 
 listen("click", rightArrow,() => {
   imageIndex++;

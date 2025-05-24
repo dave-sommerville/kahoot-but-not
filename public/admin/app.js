@@ -56,10 +56,17 @@ function updateLeaderboard(players) {
 
   players.sort((a, b) => b.score - a.score);
 
-  players.forEach((player, index) => {
-    const entry = document.createElement('div');
-    entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
-    leaderboard.appendChild(entry);
+  // players.forEach((player, index) => {
+  //   const entry = document.createElement('div');
+  //   entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
+  //   leaderboard.appendChild(entry);
+  // });
+  players.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.innerHTML =
+      `<img src="../img/${p.avatar}">
+       ${i+1}. ${p.name} – ${p.score} pts`;
+    leaderboard.appendChild(div);
   });
 }
 

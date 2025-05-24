@@ -20,13 +20,19 @@ const quesDisplay = document.querySelector('.question-display');
 const warningMsg = document.querySelector(".warning-msg");
 
 let nickname = localStorage.getItem('nickname') || "";
+let selectedavtar = localStorage.getItem('profilePic') || 'user.solid.png';
 
 if (!nickname) {
   alert("Please sign up first to set your nickname!");
   window.location.href = "./signUp.html";
 } else {
   console.log(" Nickname fetched from localStorage:", nickname);
-  socket.emit('player-join', nickname); 
+  // socket.emit('player-join', nickname); 
+  const avatar = localStorage.getItem('avatar') || 'user-solid.svg';
+  socket.emit('player-join', {               // ✅ send an object
+    name: nickname,
+    avatar : selectedavtar
+  });
 
   socket.on('gameStarted', () => {
     console.log('🟢 Game started!');
