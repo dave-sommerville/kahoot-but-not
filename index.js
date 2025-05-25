@@ -45,26 +45,64 @@ function emitLeaderboardUpdate() {
     io.emit('leaderboard-update', leaderboard);
   });
 }
-
+// ----- NEW: GLOBAL STATE VARIABLES to persist game state and current question -----
+let currentQuestion = null;  // store current question globally
+let gameStatus = 'stopped';  // track game state ('started', 'paused', 'stopped')
 const playerStates = {};
 const viewerPlayers = [];
+
+//new
+const players = {}; // Track players by socket ID
+const GAME_DURATION = 60 * 1000; // 60 seconds per player session
+
 io.on('connection', (socket) => {
+  // socket.on('startGame', () => {
+  //   console.log('🟢 Game started by admin');
+  //   io.emit('gameStarted'); // Send to everyone
+  // });
+
+  // socket.on('pauseGame', () => {
+  //   console.log('⏸️ Game paused by admin');
+  //   io.emit('gamePaused');
+  // });
+
+  // socket.on('stopGame', () => {
+  //   console.log('🔴 Game stopped by admin');
+  //   io.emit('gameStopped');
+  // });
+
+  console.log(' A user connected:', socket.id);
+
+  // ----- NEW: On new connection send current game state and current question -----
+  socket.emit('gameStatusUpdate', gameStatus);
+  if (currentQuestion) {
+    socket.emit('new-question', currentQuestion);
+  }
+  socket.emit('viewer-update-players', viewerPlayers);
+  emitLeaderboardUpdate();
+
   socket.on('startGame', () => {
     console.log('🟢 Game started by admin');
-    io.emit('gameStarted'); // Send to everyone
+    gameStatus = 'started';              // update global state
+    io.emit('gameStarted');              // notify all clients
+    io.emit('gameStatusUpdate', gameStatus); // keep everyone synced
   });
 
   socket.on('pauseGame', () => {
     console.log('⏸️ Game paused by admin');
+    gameStatus = 'paused';               // update global state
     io.emit('gamePaused');
+    io.emit('gameStatusUpdate', gameStatus);
   });
 
   socket.on('stopGame', () => {
     console.log('🔴 Game stopped by admin');
+    gameStatus = 'stopped';              // update global state
+    currentQuestion = null;              // clear current question on stop
     io.emit('gameStopped');
+    io.emit('gameStatusUpdate', gameStatus);
+    io.emit('new-question', null);      // notify clients no question now
   });
-
-  console.log(' A user connected:', socket.id);
 
   socket.on('player-join', (data) => {
     let nickname, avatar;
@@ -91,7 +129,28 @@ io.on('connection', (socket) => {
     }
 
     io.emit('viewer-update-players', viewerPlayers);
+
+
+    //new
+    players[socket.id] = {
+      name: nickname,
+      avatar,
+      joinedAt: Date.now()
+    };
+
+    // Start 60-second countdown
+    const timer = setTimeout(() => {
+      socket.emit("time-up"); // Notify player
+      delete players[socket.id]; // Optional: remove from session list
+      io.emit("player-list", Object.values(players));
+    }, GAME_DURATION);
+
+    socket.timer = timer; // Save for clearing later
+
+    io.emit("player-list", Object.values(players));
     
+
+
     db.run(
       `INSERT OR IGNORE INTO players (name, avatar) VALUES (?, ?)`,
       [nickname, avatar],
@@ -104,16 +163,33 @@ io.on('connection', (socket) => {
         console.log('Emitting player join with avatar:', avatar);
         socket.emit('player-joined', { name: nickname, avatar });
         emitLeaderboardUpdate();
+        //New
+        if (currentQuestion) {
+          playerStates[nickname] = currentQuestion;
+          socket.emit('new-question', currentQuestion);
+        } else {
+          // fallback: get new random question if none is current (optional)
+          getRandomQuestion((question) => {
+            if (!question) {
+              socket.emit('new-question', { question_text: 'No questions available yet!' });
+            } else {
+              currentQuestion = question;        // set global question
+              playerStates[nickname] = question;
+              socket.emit('new-question', question);
+              io.emit('new-question', question); // broadcast new question globally
+            }
+          });
+        }
         // send first question…
-        getRandomQuestion((question) => {
-          if (!question) {
-            socket.emit('new-question', { question_text: 'No questions available yet!' });
-          } else {
-            playerStates[nickname] = question;
-            socket.emit('new-question', question);
-            io.emit('new-question', question);
-          }
-        });
+        // getRandomQuestion((question) => {
+        //   if (!question) {
+        //     socket.emit('new-question', { question_text: 'No questions available yet!' });
+        //   } else {
+        //     playerStates[nickname] = question;
+        //     socket.emit('new-question', question);
+        //     io.emit('new-question', question);
+        //   }
+        // });
       }
     );
   });
@@ -182,6 +258,8 @@ io.on('connection', (socket) => {
         socket.emit('answer-feedback', { correct: true });
         socket.emit('new-question', question);
         io.emit('new-question', question);
+        //New
+        io.emit('gameStatusUpdate', gameStatus);
       } else {
         socket.emit('error', 'No more questions available');
       }
@@ -201,6 +279,9 @@ io.on('connection', (socket) => {
       const index = viewerPlayers.findIndex(p => p.name === socket.nickname);
       if (index !== -1) viewerPlayers.splice(index, 1);
       io.emit('viewer-update-players', viewerPlayers);
+      clearTimeout(socket.timer); // Clear timer if still running
+      delete players[socket.id];  // Remove player session
+      io.emit("player-list", Object.values(players)); // Broadcast updated list
     }
   });
 });

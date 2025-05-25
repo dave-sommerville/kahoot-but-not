@@ -22,13 +22,38 @@ const warningMsg = document.querySelector(".warning-msg");
 let nickname = localStorage.getItem('nickname') || "";
 let selectedavtar = localStorage.getItem('profilePic') || 'user.solid.png';
 
+let countdown = 30;
+const countdownEl = document.getElementById("countdown");
+
+const countdownInterval = setInterval(() => {
+  countdown--;
+  countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+  if (countdown <= 0) {
+    clearInterval(countdownInterval);
+  }
+}, 1000);
+
+// Listen for server saying time is up
+socket.on("time-up", () => {
+  // alert("⏰ Time’s up! Thanks for playing.");
+  quesDisplay.style.display = 'none';
+  StopMsg.style.display = 'block';
+  StopMsg.innerText = "⏰ Time’s up! Thanks for playing.";
+  // Redirect to home or show a result
+  setTimeout(() => {
+      window.location.href = '../viewing/index.html';
+  }, 5000);
+  // window.location.href = "../viewing/index.html"; // or something like that
+});
+
 if (!nickname) {
   alert("Please sign up first to set your nickname!");
   window.location.href = "./signUp.html";
 } else {
   console.log(" Nickname fetched from localStorage:", nickname);
   // socket.emit('player-join', nickname); 
-  const avatar = localStorage.getItem('avatar') || 'user-solid.svg';
+  // const avatar = localStorage.getItem('avatar') || 'user-solid.svg';
   socket.emit('player-join', {               // ✅ send an object
     name: nickname,
     avatar : selectedavtar
@@ -56,6 +81,7 @@ if (!nickname) {
     pauseMsg.style.display = 'none';
     quesDisplay.style.display = 'none';
     StopMsg.style.display = 'block';
+    StopMsg.innerText = "Quiz Stopped! Thank you for Playing &#128522;";
     allQuestype.forEach(option => option.style.pointerEvents = 'none');
     setTimeout(() => {
       window.location.href = '../viewing/index.html';

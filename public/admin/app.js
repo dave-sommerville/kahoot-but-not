@@ -18,9 +18,68 @@ const scoreDisplay = select('.score-display');
 const startBtn = select('.start');
 const pauseBtn = select('.pause');
 const stopBtn = select('.stop');
-// function sendAdminCommand(cmd) {
-//   socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
-// }
+const playerName = localStorage.getItem('nickname') || 'Unknown';
+const selectedAvatar = localStorage.getItem('profilePic') || 'user-solid.svg'; 
+
+//New
+if (playerName && playerName !== 'Unknown') {
+  socket.emit('player-join', { name: playerName, avatar: selectedAvatar });
+  console.log(`Re-joined as ${playerName} with avatar ${selectedAvatar}`);
+}
+
+//New
+const playerNameEls = [
+  select('.player-one'),
+  select('.player-two'),
+  select('.player-three')
+];
+const playerStatusEls = [
+  select('.player-one-status'),
+  select('.player-two-status'),
+  select('.player-three-status')
+];
+const playerImgEls = [
+  select('.player-one-avatar'),
+  select('.player-two-avatar'),
+  select('.player-three-avatar')
+];
+socket.on('viewer-update-players', (players) => {
+  // const playerNameEls = [
+  //   document.querySelector('.player-one'),
+  //   document.querySelector('.player-two'),
+  //   document.querySelector('.player-three')
+  // ];
+  // const playerStatusEls = [
+  //   document.querySelector('.player-one-status'),
+  //   document.querySelector('.player-two-status'),
+  //   document.querySelector('.player-three-status')
+  // ];
+  // const playerImgEls = [
+  //   document.querySelector('.player-one-avatar'),
+  //   document.querySelector('.player-two-avatar'),
+  //   document.querySelector('.player-three-avatar')
+  // ];
+
+  players.forEach((player, index) => {
+    if (!playerNameEls[index]) return;
+    console.log("Rendering player:", player.name, "Avatar:", player.avatar);
+    if (playerNameEls[index]) {
+      playerNameEls[index].textContent = player.name || "Unnamed";
+      playerStatusEls[index].textContent = "Ready";
+
+      //New
+      playerImgEls[index].src = player.avatar ? `../img/${player.avatar}` : '../img/user-solid.svg';
+
+      // if (player.avatar) {
+      //   playerImgEls[index].src = `../img/${player.avatar}`;
+      //   console.log("Image source set to:", playerImgEls[index].src);
+      // } else {
+      //   playerImgEls[index].src = '/img/user-solid.svg';
+      // }
+      console.log(`✅ Player ${index + 1} => Name: ${player.name}, Avatar: ${player.avatar}`);
+    }
+  });
+});
 
 listen('click', startBtn, () => {
   socket.emit('startGame');
@@ -42,7 +101,8 @@ socket.on('leaderboard-update', (players) => {
 });
 
 socket.on('new-question', (question) => {
-  const questionText = document.getElementById('question-text');
+  const questionText = select('#question-text');
+  // const questionText = document.getElementById('question-text');
   if (questionText && question && question.question_text) {
     questionText.textContent = question.question_text;
   } else {
@@ -51,16 +111,11 @@ socket.on('new-question', (question) => {
 });
 
 function updateLeaderboard(players) {
-  const leaderboard = document.getElementById('leaderboard');
+  const leaderboard = select('#leaderboard');
+  // const leaderboard = document.getElementById('leaderboard');
   leaderboard.innerHTML = ''; 
 
   players.sort((a, b) => b.score - a.score);
-
-  // players.forEach((player, index) => {
-  //   const entry = document.createElement('div');
-  //   entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
-  //   leaderboard.appendChild(entry);
-  // });
   players.forEach((p, i) => {
     const div = document.createElement('div');
     div.innerHTML =

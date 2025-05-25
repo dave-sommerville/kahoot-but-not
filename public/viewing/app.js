@@ -15,6 +15,10 @@ const leaderboard = document.getElementById('leaderboard');
 
 const playerName = localStorage.getItem('nickname') || 'Unknown';
 const selectedAvatar = localStorage.getItem('profilePic') || 'user-solid.svg'; 
+if (playerName && playerName !== 'Unknown') {
+  socket.emit('player-join', { name: playerName, avatar: selectedAvatar });
+  console.log(`Viewer re-joined as ${playerName} with avatar ${selectedAvatar}`);
+}
 console.log('Emitting player-join with:', {
   name: localStorage.getItem('nickname'),
   avatar: localStorage.getItem('profilePic')
