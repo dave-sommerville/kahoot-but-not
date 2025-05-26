@@ -14,10 +14,8 @@ const waitingMessage = select('#waitingMessage');
 const playerLobby = select('#playerLobby');
 
 socket.on('gameStarted', () => {
-  // Hide waiting message
   waitingMessage.style.display = 'none';
-  // Show player lobby UI
-  playerLobby.style.display = 'flex'; // since you use flex classes
+  playerLobby.style.display = 'flex'; 
 });
 
 
@@ -28,18 +26,9 @@ selectName.addEventListener('click', () => {
     return;
   } 
   localStorage.setItem('nickname', nickname);
-  // localStorage.setItem('profilePic', profilePic || imageFiles[imageIndex]); 
-  // store only filename, e.g. 'ded.png'
   localStorage.setItem('profilePic', imageFiles[imageIndex].split('/').pop());
   window.location.href = "./index.html";
 });
-
-// socket.on("connect", () => {
-//   socket.emit("player-join", {
-//     name: localStorage.getItem('nickname'),
-//     avatar: localStorage.getItem('profilePic')
-//   });
-// });
 
 let profilePic = "";
 let imageIndex = 0;
@@ -48,7 +37,6 @@ const rightArrow = select(".right-arrow");
 const leftArrow = select(".left-arrow");
 
 const imageFiles = ["../img/ded.png", "../img/devil.png", "../img/happy.png", "../img/star.png", "../img/think.png", "../img/wink.png", "../img/worry.png"];
-// avatar.src = imageFiles[imageIndex];
 profilePic = imageFiles[imageIndex];
 avatar.src = profilePic;
 
@@ -65,9 +53,6 @@ listen("click", rightArrow,() => {
 
 listen("click", leftArrow,() => {
   imageIndex--;
-  // if (imageIndex === 0) {
-  //   imageIndex = 6;
-  // }
   if (imageIndex < 0) {
     imageIndex = imageFiles.length - 1;
   }

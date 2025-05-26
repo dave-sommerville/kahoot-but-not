@@ -22,7 +22,7 @@ const warningMsg = document.querySelector(".warning-msg");
 let nickname = localStorage.getItem('nickname') || "";
 let selectedavtar = localStorage.getItem('profilePic') || 'user.solid.png';
 
-let countdown = 30;
+let countdown = 60;
 const countdownEl = document.getElementById("countdown");
 
 const countdownInterval = setInterval(() => {
@@ -34,17 +34,13 @@ const countdownInterval = setInterval(() => {
   }
 }, 1000);
 
-// Listen for server saying time is up
 socket.on("time-up", () => {
-  // alert("⏰ Time’s up! Thanks for playing.");
   quesDisplay.style.display = 'none';
   StopMsg.style.display = 'block';
   StopMsg.innerText = "⏰ Time’s up! Thanks for playing.";
-  // Redirect to home or show a result
   setTimeout(() => {
       window.location.href = '../viewing/index.html';
   }, 5000);
-  // window.location.href = "../viewing/index.html"; // or something like that
 });
 
 if (!nickname) {
@@ -52,9 +48,7 @@ if (!nickname) {
   window.location.href = "./signUp.html";
 } else {
   console.log(" Nickname fetched from localStorage:", nickname);
-  // socket.emit('player-join', nickname); 
-  // const avatar = localStorage.getItem('avatar') || 'user-solid.svg';
-  socket.emit('player-join', {               // ✅ send an object
+  socket.emit('player-join', {               
     name: nickname,
     avatar : selectedavtar
   });
@@ -76,7 +70,6 @@ if (!nickname) {
 
   socket.on('gameStopped', () => {
     console.log('🔴 Game stopped!');
-    // alert("The game has been stopped by the admin.");
     submitBtn.disabled = true;
     pauseMsg.style.display = 'none';
     quesDisplay.style.display = 'none';
@@ -85,7 +78,7 @@ if (!nickname) {
     allQuestype.forEach(option => option.style.pointerEvents = 'none');
     setTimeout(() => {
       window.location.href = '../viewing/index.html';
-    }, 5000); // 5000ms = 5 seconds
+    }, 5000); 
   });
 }
 

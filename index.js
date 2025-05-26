@@ -233,7 +233,6 @@ io.on('connection', (socket) => {
         userAnswer
       });
 
-      // emitLeaderboardUpdate();
 
     } else {
       console.log(" Wrong answer");
@@ -279,9 +278,9 @@ io.on('connection', (socket) => {
       const index = viewerPlayers.findIndex(p => p.name === socket.nickname);
       if (index !== -1) viewerPlayers.splice(index, 1);
       io.emit('viewer-update-players', viewerPlayers);
-      clearTimeout(socket.timer); // Clear timer if still running
-      delete players[socket.id];  // Remove player session
-      io.emit("player-list", Object.values(players)); // Broadcast updated list
+      clearTimeout(socket.timer); 
+      delete players[socket.id];  
+      io.emit("player-list", Object.values(players)); 
     }
   });
 });
