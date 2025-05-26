@@ -124,7 +124,7 @@ button {
   background-color: #bbd876;
   border: solid 1px #012;
   font-size: 1.2rem;
-  padding: 1.75rem; 
+  padding: 1.5rem; 
 }
 
 /*---------------------------------------------->
@@ -132,7 +132,8 @@ Admin/Viewing
 <----------------------------------------------*/
 .lobby {
   width: 550px;
-  height: 325px;
+  padding: 2rem; 
+  /* height: 325px; */
   background-color: var(--clr-bg);
   justify-content: space-evenly;
   border-radius: var(--app-border-rad);
@@ -299,58 +300,164 @@ Game Play
   font-weight: bold;
 }
 
-#waitingMessage {
-  color: #f2f6f4;
-  font-weight: 600;
-  font-size: 2rem;
+.timer {
+  font-size: 20px; 
+  font-weight: bold;
+  color: white;
+  background-color: #ff4c4c;
+  padding: 10px;
 }
-
-.pause-banner {
-  position: fixed;
-  top: 20%;
+#yippee-message {
+  position: absolute;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* background-color: rgba(0, 0, 0, 0.85); */
-  color: #bbd876;
-  padding: 20px 40px;
-  font-size: 32px;
-  font-weight: 600;
-  border-radius: 12px;
-  z-index: 1000;
+  font-size: 3rem;
+  font-weight: bold;
+  color: #00FF88;
+  background: white;
+  border-radius: 10px;
+  padding: 1rem 2rem;
   display: none;
+  animation: popIn 1s ease;
+  z-index: 1000;
 }
 
-.StopMsg {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  /* background-color: rgba(0, 0, 0, 0.85); */
-  color: #bbd876;
-  padding: 20px 40px;
-  font-size: 32px;
-  font-weight: 600;
-  /* border-radius: 12px; */
-  z-index: 1000;
-  display: none;
+@keyframes popIn {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); }
 }
 
-.warning-msg {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  /* background-color: rgba(0, 0, 0, 0.85); */
-  color: #bbd876;
-  padding: 20px 40px;
-  font-size: 32px;
-  font-weight: 600;
-  border-radius: 12px;
-  z-index: 1000;
-  display: none;
+.leaderboard-section {
+  position: fixed; /* stays visible even when scrolling */
+  top: 0;
+  right: 0;
+  height: 100vh; /* full height of the viewport */
+  /* width: 250px; */
+  background-color: #f4f4f4;
+  border-left: 2px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--app-spacing);
+  gap: 1rem;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* allows scrolling if too many players */
+  z-index: 1000; /* stays on top */
 }
 
-#countdown {
-  color: #f2f6f4;
-  font-size: 2rem;
+.leaderboard-box {
+  width: 300px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.leaderboard-box h3 {
+  background-color: #3498db;
+  color: white;
+  padding: 0.75rem;
+  text-align: center;
+  margin: 0;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #2980b9;
+}
+
+.leaderboard-entry {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.leaderboard-entry:last-child {
+  border-bottom: none;
+}
+
+.avatar-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.leaderboard-entry span {
+  flex-grow: 1;
+  font-size: 1rem;
+  color: #333;
+}
+
+.score-display {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background-color: #222;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: 'Arial', sans-serif;
+}
+
+#playerScore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 50px;
+  background-color: var(--clr-dark);
+  color: var(--clr-text);
+  border-radius: var(--app-border-rad);
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin: var(--app-spacing);
+  transition: transform 0.3s ease-in-out;
+}
+
+#playerScore:hover {
+  transform: scale(1.05);
+}
+
+/* Game over screen  */
+.game-over-screen {
+  text-align: center;
+  margin-top: 100px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.game-over-screen h1 {
+  font-size: 3em;
+  margin-bottom: 20px;
+}
+
+.game-over-screen p {
+  font-size: 1.5em;
+  margin-bottom: 30px;
+}
+
+.game-over-screen button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+
+/* Timer in viewing  */
+.timer-box {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #333;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.2em;
+  z-index: 100;
 }

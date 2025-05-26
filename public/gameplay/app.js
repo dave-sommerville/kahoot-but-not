@@ -1,26 +1,22 @@
 'use strict';
-function select(selector, scope = document) {
-  return scope.querySelector(selector);
-}
 
-function listen(event, selector, callback) {
-  return selector.addEventListener(event, callback);
-}
+const socket = io();
 
-const socket = io(); 
+// DOM Elements
 const mcqWrapper = document.querySelector('.multiple-choice-wrapper');
 const tfWrapper = document.querySelector('.true-false-wrapper');
-const questiontxt =  document.querySelector('.question-text');
+const questiontxt = document.querySelector('.question-text');
 const allQuestype = document.querySelectorAll('.multiple-choice-wrapper div, .true-false-wrapper div');
-const selectedElements = document.querySelectorAll('.selected');
 const submitBtn = document.querySelector('.submit');
-const pauseMsg = document.getElementById('pauseMessage');
-const StopMsg = document.querySelector('.StopMsg');
-const quesDisplay = document.querySelector('.question-display');
-const warningMsg = document.querySelector(".warning-msg");
+const timerDisplay = document.querySelector('.timer');
+const scoreDisplay = document.getElementById('playerScore');
+const yippee = document.getElementById('yippeeMessage');
 
-let nickname = localStorage.getItem('nickname') || "";
-let selectedavtar = localStorage.getItem('profilePic') || 'user.solid.png';
+let nickname = localStorage.getItem('nickname');
+let avatar = localStorage.getItem('avatar');
+let selectedAnswer = '';
+let timerInterval = null;
+let timeLeft = 60;
 
 let countdown = 60;
 let countdownInterval = null;
@@ -66,11 +62,9 @@ if (!nickname) {
   alert("Please sign up first to set your nickname!");
   window.location.href = "./signUp.html";
 } else {
-  console.log(" Nickname fetched from localStorage:", nickname);
-  socket.emit('player-join', {               
-    name: nickname,
-    avatar : selectedavtar
-  });
+  console.log("✅ Player authenticated:", nickname, avatar);
+  socket.emit('player-join', { nickname, avatar });
+}
 
   socket.on('gameStarted', () => {
     console.log('Game started!');
@@ -102,25 +96,16 @@ if (!nickname) {
       window.location.href = '../viewing/index.html';
     }, 5000); 
   });
-}
 
 
-// document.querySelector('#join-btn').addEventListener('click', () => {
-//   const nickname = document.querySelector('#nickname').value;
-//   if (!nickname) return;
-
-//   // Emit player join with avatar
-//   socket.emit('player-join', {
-//     nickname,
-//     avatar: profilePic
-//   });
-// });
-
-// Listen for the 'new-question' event from the server
+//  New question
 socket.on('new-question', (question) => {
-  console.log("🟢 New Question Received:", question);
-  selectedElements.forEach(el => el.classList.remove('selected', 'wrong', 'correct'));
-  selectedAnswer = null;
+  console.log("🟢 New question:", question);
+  selectedAnswer = '';
+  timeLeft = question.time || 15;
+  startTimer();
+
+  allQuestype.forEach(el => el.classList.remove('selected', 'correct', 'wrong'));
   questiontxt.innerText = question.question_text;
   //new
   // startCountdown(60);
@@ -133,74 +118,104 @@ socket.on('new-question', (question) => {
 
   if (question.question_type === 'tf') {
     mcqWrapper.style.display = 'none';
-    tfWrapper.style.display = 'block';
-    document.querySelector('.opt-one-txt').innerText = question.option_a;
-    document.querySelector('.opt-two-txt').innerText = question.option_b;
+    tfWrapper.style.display = 'grid';
+    tfWrapper.querySelectorAll('p')[0].innerText = question.option_a;
+    tfWrapper.querySelectorAll('p')[1].innerText = question.option_b;
   } else {
     tfWrapper.style.display = 'none';
-    mcqWrapper.style.display = 'block';
-    document.querySelector('.opt-one-txt').innerText = question.option_a;
-    document.querySelector('.opt-two-txt').innerText = question.option_b;
-    document.querySelector('.opt-three-txt').innerText = question.option_c;
-    document.querySelector('.opt-four-txt').innerText = question.option_d;
+    mcqWrapper.style.display = 'grid';
+    const options = mcqWrapper.querySelectorAll('p');
+    options[0].innerText = question.option_a;
+    options[1].innerText = question.option_b;
+    options[2].innerText = question.option_c;
+    options[3].innerText = question.option_d;
   }
 });
 
-socket.on('answer-feedback', (data) => {
-  allQuestype.forEach(option => {
-    option.classList.remove('correct', 'wrong', 'selected');
-  });
+//  Feedback after answer
+socket.on('answer-feedback', ({ correct, correctAnswer, userAnswer, score }) => {
+  clearInterval(timerInterval);
+  alert(correct
+    ? `🎉 Correct! Your score: ${score}`
+    : `❌ Wrong. You answered "${userAnswer}", correct was "${correctAnswer}". Your score: ${score}`
+  );
 
-  const userAnswer = data.userAnswer.toLowerCase();
-  const correctAnswer = data.correctAnswer.toLowerCase();
-  const isCorrect = userAnswer === correctAnswer;
+  let newScore = Math.round((timeLeft / 15 ) * 200); 
+  highlightOptions(correctAnswer, userAnswer);
 
-  allQuestype.forEach(option => {
-    const optionText = option.querySelector('p').innerText.trim().toLowerCase();
+  // Update score display
+  if (scoreDisplay) {
+    let currentScore = parseInt(scoreDisplay.innerText, 10) || 0; // Convert innerText to number, default to 0 if empty
+    scoreDisplay.innerText = currentScore + newScore; // Perform proper addition
+  }
 
-    if (optionText === correctAnswer) {
-      option.classList.add('correct');
-    }
+  // If correct, show the "Yippee" message
+  if (correct) {
+    yippee.style.display = 'block';
+    setTimeout(() => yippee.style.display = 'none', 1500);
+  }
 
-    if (optionText === userAnswer && userAnswer !== correctAnswer) {
-      option.classList.add('wrong');
-    }
-  });
-
-  if (isCorrect) {
+  // Ask for next quesiton after a few seconds
+  setTimeout(() => {
     socket.emit('next-question');
-  } else {
-    setTimeout(() => {
-      socket.emit('next-question');
-    }, 2000); 
-  }
+  }, 4000);
 });
 
-let selectedAnswer = '';
-
-allQuestype.forEach(optionDiv => {
-  optionDiv.addEventListener('click', () => {
-    const newselected = document.querySelectorAll('.selected');
-    newselected.forEach(el => {
-      el.classList.remove('selected');
-      el.classList.remove('wrong');
-      el.classList.remove('correct');
-    });
-    optionDiv.classList.add('selected');
-    selectedAnswer = optionDiv.querySelector('p').innerText.trim();
-    warningMsg.style.display = 'none';
+// Option click
+allQuestype.forEach(el => {
+  el.addEventListener('click', () => {
+    allQuestype.forEach(opt => opt.classList.remove('selected'));
+    el.classList.add('selected');
+    const text = el.querySelector('p');
+    selectedAnswer = text ? text.innerText.trim() : el.innerText.trim();
+    console.log(`Selected: ${selectedAnswer}`);
   });
 });
 
+//  Submit click
 submitBtn.addEventListener('click', () => {
   if (!selectedAnswer) {
     warningMsg.style.display = 'block';
     return;
   }
-  warningMsg.style.display = 'none';
-  console.log(` Received answer from ${nickname}: ${selectedAnswer}`);
+  clearInterval(timerInterval);
+  console.log(`Submitting: ${selectedAnswer}`);
   socket.emit('submit-answer', { nickname, answer: selectedAnswer });
-  console.log("User Answer:", `"${selectedAnswer}"`);
-  console.log("Correct Answer:", `"${correctAnswer}"`);
-  console.log("Match?", selectedAnswer === correctAnswer);
 });
+
+// Optional: Clear data after window close to force re-signup next time
+window.addEventListener('beforeunload', () => {
+  localStorage.removeItem('nickname');
+  localStorage.removeItem('avatar');
+});
+
+socket.on('quiz-complete', () => {
+  console.log(" Quiz Complete");
+
+  document.body.innerHTML = '';
+  document.body.style.backgroundColor = 'white';
+
+  //  Show a Game Over screen
+  document.querySelector('.game-area').innerHTML = `
+    <div class="game-over-screen">
+      <h1> Quiz Complete!</h1>
+      <p>Thanks for playing.</p>
+      <button onclick="location.reload()">Play Again</button>
+    </div>
+  `;
+
+});
+
+
+socket.on('reset-client', () => {
+  console.log(" Resetting client");
+
+  //  Reload the page and reset local storage
+  location.reload();
+
+  localStorage.removeItem('nickname');
+  localStorage.removeItem('avatar');
+  alert("Please sign up again to play!");
+  location.href = "./signUp.html";
+});
+

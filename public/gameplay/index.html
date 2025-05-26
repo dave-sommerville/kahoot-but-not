@@ -7,7 +7,7 @@
     <meta name="description" content="Dave Sommerville">
     <meta name="theme-color" content="#ffffff">
     <script src="/socket.io/socket.io.js"></script>
-    <title></title>
+    <title>Gameplay</title>
     <link rel="icon" href="./src/img/favicon.png" type="image/x-icon">
     
     <!-- External stylesheets -->
@@ -23,15 +23,19 @@
   <header>
     <h1>Cyber Clash</h1>
   </header>
-  <main class="f-col">
-    <div class="StopMsg"></div>
+  <!-- Give margin class so I can change content on game over  -->
+  <main class="game-area">
+    <!--
+      Here will be the game area. The formatting of this will depend on the type of question. 
+      Whe could create formatting for each type of question and then only make the appropriate one visible
+      or we can change the question formatting dynamically with JS and css classes
+    -->
+    <div class="timer">Time Left: 60s</div>
+    <span id="playerScore"></span>
+    <div id="questionArea" class="question-wrapper flex">
+      <p class="question-text">Blah blah blah, which is it?</p>
+    </div>
     <section class="question-display f-col">
-      <div id="pauseMessage" class="pause-banner">⏸ Quiz Paused</div>
-      <p class ="warning-msg">Please select an answer!</p>
-      <div id="countdown">⏳ Time left: 60s</div>
-      <div class="question-wrapper flex">
-        <p class="question-text">Waiting for the questions...</p>
-      </div>
       <div class="multiple-choice-wrapper">
         <div class="option-one">
           <p class="opt-one-txt">Loading..</p>
@@ -55,6 +59,7 @@
         </div>
       </div>
       <button class="submit">Submit</button>
+      <div id="yippeeMessage" style="display:none;">🎉 Yippee!</div>
     </section>
   </main>
   <script src="/socket.io/socket.io.js"></script>

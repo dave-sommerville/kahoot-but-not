@@ -1,105 +1,128 @@
 'use strict';
 
+
+/*------------------------------------------------------------------------->
+  Utility Functions 
+<-------------------------------------------------------------------------*/
+
 function select(selector, scope = document) {
   return scope.querySelector(selector);
 }
 
 function listen(event, element, callback) {
-  return element.addEventListener(event, callback);
+  return element?.addEventListener?.(event, callback);
 }
 
 function isImageFile(file) {
-  return file && file.type.startsWith('image');
-}
-
-const socket = io(); 
-const scoreTrigger = select('.score-trigger');
-const scoreDisplay = select('.score-display');
-const startBtn = select('.start');
-const pauseBtn = select('.pause');
-const stopBtn = select('.stop');
-const playerName = localStorage.getItem('nickname') || 'Unknown';
-const selectedAvatar = localStorage.getItem('profilePic') || 'user-solid.svg'; 
-
-
-if (playerName && playerName !== 'Unknown') {
-  socket.emit('player-join', { name: playerName, avatar: selectedAvatar });
-  console.log(`Re-joined as ${playerName} with avatar ${selectedAvatar}`);
+  return file && file.type?.startsWith?.('image');
 }
 
 
-const playerNameEls = [
-  select('.player-one'),
-  select('.player-two'),
-  select('.player-three')
-];
-const playerStatusEls = [
-  select('.player-one-status'),
-  select('.player-two-status'),
-  select('.player-three-status')
-];
-const playerImgEls = [
-  select('.player-one-avatar'),
-  select('.player-two-avatar'),
-  select('.player-three-avatar')
-];
-socket.on('viewer-update-players', (players) => {
+function sendAdminCommand(cmd) {
+  socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
+}
+const socket = io(); // default namespace
 
-  players.forEach((player, index) => {
-    if (!playerNameEls[index]) return;
-    console.log("Rendering player:", player.name, "Avatar:", player.avatar);
-    if (playerNameEls[index]) {
-      playerNameEls[index].textContent = player.name || "Unnamed";
-      playerStatusEls[index].textContent = "Ready";
-      playerImgEls[index].src = player.avatar ? `../img/${player.avatar}` : '../img/user-solid.svg';
-      console.log(`✅ Player ${index + 1} => Name: ${player.name}, Avatar: ${player.avatar}`);
-    }
-  });
-});
+const startBtn = document.getElementById('startGameBtn');
+const cancelBtn = document.getElementById('cancelGameBtn');
 
 listen('click', startBtn, () => {
-  socket.emit('startGame');
+  socket.emit('admin-command', { type: 'start-game' });
+  socket.emit('admin-start-game');
 });
 
-listen('click', pauseBtn, () => {
-  socket.emit('pauseGame');
+listen('click', cancelBtn, () => {
+  socket.emit('admin-command', { type: 'cancel-game' });
 });
 
-listen('click', stopBtn, () => {
-  socket.emit('stopGame');
-});
+// Set number of questions 
+const setCountBtn = document.getElementById('setQuestionCountBtn');
+const questionCountInput = document.getElementById('questionCount');
 
-socket.emit('get-leaderboard');
-
-socket.on('leaderboard-update', (players) => {
-  console.log('🏆 Received leaderboard update:', players);
-  updateLeaderboard(players);
-  updateLobbyPlayers(players);  // new function to update name display
-});
-
-socket.on('new-question', (question) => {
-  const questionText = select('#question-text');
-  if (questionText && question && question.question_text) {
-    questionText.textContent = question.question_text;
+listen('click', setCountBtn, () => {
+  const count = parseInt(questionCountInput.value, 10);
+  if (count > 0) {
+    socket.emit('admin-set-question-count', count);
   } else {
-    questionText.textContent = 'No questions available';
+    alert("Please enter a valid number of questions.");
   }
 });
 
-function updateLeaderboard(players) {
-  const leaderboard = select('#leaderboard');
-  leaderboard.innerHTML = ''; 
 
-  players.sort((a, b) => b.score - a.score);
-  players.forEach((p, i) => {
+// Next question 
+const nextQBtn = document.getElementById('nextQuestionBtn');
+
+// Should ask for next question 
+listen('click', nextQBtn, () => {
+  socket.emit('admin-next-question');
+});
+
+// If the server is waiting for the admin to press next
+socket.on('awaiting-admin-next', () => {
+  // Can use UI or element to display it 
+  alert("Players have answered. Press 'Next Question' to continue.");
+});
+
+/*--Player Display Updatess--*/
+
+// Live update of current players in lobby
+socket.on('current-players', (players = []) => {
+  const container = document.querySelector('.admin-player-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  players.forEach(({ name, avatar }) => {
     const div = document.createElement('div');
-    div.innerHTML =
-      `<img src="../img/${p.avatar}">
-       ${i+1}. ${p.name} – ${p.score} pts`;
-    leaderboard.appendChild(div);
-  });
-}
+    div.classList.add('player-slot');
 
-listen("click", scoreTrigger, () =>{
-  scoreDisplay.classList.toggle('open');
+    const safeName = name || 'Unnamed';
+    const safeAvatar = avatar || '../img/user-solid.svg';
+
+    div.innerHTML = `
+      <img src="${safeAvatar}" onerror="this.src='../img/user-solid.svg'" />
+      <span>${safeName}</span>
+    `;
+    container.appendChild(div);
+  });
+});
+
+// Slots update for admin view
+socket.on('leaderboard-update', (players = []) => {
+  const slotIds = ['player-slot-1', 'player-slot-2', 'player-slot-3'];
+
+  slotIds.forEach((id, index) => {
+    const slot = document.getElementById(id);
+    if (!slot) {
+      console.log(`Slot with ID ${id} not found. Skipping update.`);
+      return; 
+     } // Ensure element exists
+
+    const h4 = slot.querySelector('h4');
+    const img = slot.querySelector('img');
+    const p = slot.querySelector('p');
+
+    console.log(`Updating slot: ${id}, Index: ${index}, Player:`, players[index]); // Debug log
+
+    if (players[index]) {
+      h4.textContent = 'Ready!';
+      img.src = players[index].avatar || '../img/user-solid.svg';
+      p.textContent = players[index].name || 'Unnamed';
+    } else {
+      h4.textContent = 'Unoccupied';
+      img.src = '../img/user-solid.svg';
+      p.textContent = 'Unnamed';
+    }
+  });
+});
+/*------------------------------------------------------------------------->
+  Optional: Game State Alerts
+<-------------------------------------------------------------------------*/
+
+socket.on('game-started', () => {
+  alert("✅ Game started!");
+});
+
+socket.on('lobby-cleared', () => {
+  alert("❌ Lobby cleared.");
 });
