@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
       <a href="/gameplay/index.html">Gameplay</a>, 
       <a href="/admin/index.html">Admin</a>, or 
       <a href="/viewing/index.html">Viewing</a>
+      <a href="/gameplay/signUp.html">Sign-up</a>
     </p>
   `);
 });
@@ -292,8 +293,11 @@ io.on('connection', (socket) => {
 });
 
 // --- Start Server ---
-server.listen(PORT, () => {
-  console.log(`Server running at http://192.168.2.36:${PORT}`);
+// server.listen(PORT, () => {
+//   console.log(`Server running at http://192.168.2.36:${PORT}`);
+// });
+server.listen(PORT, 'localhost', () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
 });
 setInterval(emitLeaderboardUpdate, 5000);
 // setInterval(() => {
