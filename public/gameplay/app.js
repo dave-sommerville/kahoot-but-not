@@ -23,21 +23,40 @@ let nickname = localStorage.getItem('nickname') || "";
 let selectedavtar = localStorage.getItem('profilePic') || 'user.solid.png';
 
 let countdown = 60;
+let countdownInterval = null;
+
+// let countdown = 60;
 const countdownEl = document.getElementById("countdown");
 
-const countdownInterval = setInterval(() => {
-  countdown--;
+// const countdownInterval = setInterval(() => {
+//   countdown--;
+//   countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+//   if (countdown <= 0) {
+//     clearInterval(countdownInterval);
+//   }
+// }, 1000);
+function startCountdown(duration = 60) {
+  clearInterval(countdownInterval);
+  countdown = duration;
   countdownEl.textContent = `⏳ Time left: ${countdown}s`;
 
-  if (countdown <= 0) {
-    clearInterval(countdownInterval);
-  }
-}, 1000);
+  countdownInterval = setInterval(() => {
+    countdown--;
+    countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+    }
+  }, 1000);
+}
 
 socket.on("time-up", () => {
+  //new
+  clearInterval(countdownInterval);
   quesDisplay.style.display = 'none';
   StopMsg.style.display = 'block';
-  StopMsg.innerText = "⏰ Time’s up! Thanks for playing.";
+  StopMsg.innerText = "Time’s up! Thanks for playing.";
   setTimeout(() => {
       window.location.href = '../viewing/index.html';
   }, 5000);
@@ -54,7 +73,7 @@ if (!nickname) {
   });
 
   socket.on('gameStarted', () => {
-    console.log('🟢 Game started!');
+    console.log('Game started!');
     submitBtn.disabled = false;
     submitBtn.style.backgroundColor = '#c2cfa4';
     pauseMsg.style.display = 'none';
@@ -62,19 +81,22 @@ if (!nickname) {
   });
 
   socket.on('gamePaused', () => {
-    console.log('⏸️ Game paused!');
+    console.log('⏸Game paused!');
+    //new
+    clearInterval(countdownInterval);
     submitBtn.disabled = true;
     pauseMsg.style.display = 'block';
     allQuestype.forEach(option => option.style.pointerEvents = 'none');
   });
 
   socket.on('gameStopped', () => {
-    console.log('🔴 Game stopped!');
+    console.log('Game stopped!');
+    clearInterval(countdownInterval);
     submitBtn.disabled = true;
     pauseMsg.style.display = 'none';
     quesDisplay.style.display = 'none';
     StopMsg.style.display = 'block';
-    StopMsg.innerText = "Quiz Stopped! Thank you for Playing &#128522;";
+    StopMsg.innerText = "Quiz Stopped! \nThank you for Playing;";
     allQuestype.forEach(option => option.style.pointerEvents = 'none');
     setTimeout(() => {
       window.location.href = '../viewing/index.html';
@@ -100,6 +122,14 @@ socket.on('new-question', (question) => {
   selectedElements.forEach(el => el.classList.remove('selected', 'wrong', 'correct'));
   selectedAnswer = null;
   questiontxt.innerText = question.question_text;
+  //new
+  // startCountdown(60);
+  let remaining = 60;
+  if (question.startTime) {
+    const elapsed = Math.floor((Date.now() - question.startTime) / 1000);
+    remaining = Math.max(60 - elapsed, 0);
+  }
+  startCountdown(remaining);
 
   if (question.question_type === 'tf') {
     mcqWrapper.style.display = 'none';
