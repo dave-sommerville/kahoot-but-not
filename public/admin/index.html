@@ -7,7 +7,7 @@
     <meta name="description" content="Dave Sommerville">
     <meta name="theme-color" content="#ffffff">
     <script src="/socket.io/socket.io.js"></script>
-    <title></title>
+    <title>Admin</title>
     <!-- <link rel="icon" href="./src/img/favicon.png" type="image/x-icon"> -->
     
     <!-- External stylesheets -->
@@ -30,23 +30,23 @@
     -->
     <section class="lobby f-col">
       <div class="flex sp-even">
-        <div class="center f-col">
+        <div class="center f-col" id="player-slot-1">
           <h4 class="player-one-status">Unoccupied</h4>
-          <div class="circle">
+          <div>
             <img class="profile" src="../img/user-solid.svg">
           </div>
           <p class="player-one">Unnamed</p>
         </div>
-        <div class="center f-col">
+        <div class="center f-col" id="player-slot-2">
           <h4 class="player-two-status">Unoccupied</h4>
-          <div class="circle">
+          <div>
             <img class="profile" src="../img/user-solid.svg">
           </div>
           <p class="player-two">Unnamed</p>
         </div>
-        <div class="center f-col">
+        <div class="center f-col" id="player-slot-3">
           <h4 class="player-three-status">Unoccupied</h4>
-          <div class="circle">
+          <div>
             <img class="profile" src="../img/user-solid.svg">
           </div>
           <p class="player-three">Unnamed</p>
@@ -55,8 +55,12 @@
     <div id="lobby-controls">
       <button id="startGameBtn">Start Game</button>
       <button id="cancelGameBtn">Cancel Game</button>
+      <button id="nextQuestionBtn">Next Question</button>
     </div>
     </section>
+    <label for="questionCount">Number of Questions:</label>
+    <input type="number" id="questionCount" min="1" max="50" value="5">
+    <button id="setQuestionCountBtn">Set Question Count</button>
     <!-- Add a new question  -->
     <section class="add-question">
       <h3>Add a New Question</h3>
@@ -71,14 +75,14 @@
       </form> -->
       <p id="formStatus"></p>
     </section>
-    <section class="score-display">
-      <h3 class="score-trigger pointer hover">
+    <!-- <section class="score-display"> -->
+      <!-- <h3 class="score-trigger pointer hover">
         High Scores
-      </h3>
-      <div class="high-scores" id="leaderboard">
-      </div>
-    </section>
-    <button class="view">View Questions</button>
+      </h3> -->
+      <!-- <div class="high-scores" id="leaderboard">
+      </div> -->
+    <!-- </section> -->
+    <!-- <button class="view">View Questions</button> -->
   </main>
 </body>
 </html>

@@ -11,45 +11,51 @@ const socket = io();
 const questionText = document.getElementById('question-text');
 const leaderboard = document.getElementById('leaderboard');
 
-
-
-socket.on('leaderboard-data', (data) => {
-  updateLeaderboardUI(data); // Implement this to update the DOM
-});
-
 // Auto-refresh
 setInterval(() => {
   socket.emit('request-leaderboard');
 }, 5000); // update every 5 seconds
 
-function updateLeaderboardUI(data) {
-  const highScoresList = document.querySelector('.high-scores');
-  highScoresList.innerHTML = ""; // Clear the list first
+function updateLeaderboardUI(data, targetSelector) {
+  const container = document.querySelector(targetSelector);
+  container.innerHTML = "";
 
   data.forEach((player, index) => {
-    const li = document.createElement('li');
-    li.textContent = `${index + 1}. ${player.name} - ${player.score}`;
-    highScoresList.appendChild(li);
-  });
+    const entry = document.createElement('div');
+    entry.className = "leaderboard-entry";
 
-  // Optional: Populate fixed slots too
-  const fixedSlots = document.querySelectorAll('.current-scores > div');
-  fixedSlots.forEach((slot, i) => {
-    if (data[i]) {
-      slot.querySelector('h4').textContent = data[i].name;
-      slot.querySelector('p').textContent = `Score: ${data[i].score}`;
-    } else {
-      slot.querySelector('h4').textContent = "";
-      slot.querySelector('p').textContent = "";
-    }
+    const avatar = document.createElement('img');
+    avatar.src = player.avatar || "../img/user-solid.svg";
+    avatar.className = "avatar-icon";
+
+    const text = document.createElement('span');
+    text.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
+
+    entry.appendChild(avatar);
+    entry.appendChild(text);
+    container.appendChild(entry);
   });
 }
-
 'use strict';
 
-// Request the leaderboard when the page loads
-socket.emit('get-leaderboard');
+setInterval(() => {
+  // Ask the server for the global leaderboard
+  socket.emit('get-global-leaderboard');
+  // Request the leaderboard when the page loads
+  socket.emit('get-leaderboard');
+}, 5000); // Update every 5 seconds
 
+
+// Listen for response
+socket.on('leaderboard-update', (players) => {
+  updateLeaderboardUI(players, '.current-game-leaderboard');
+});
+
+socket.on('global-leaderboard-data', (players) => {
+  updateLeaderboardUI(players, '.global-leaderboard');
+});
+
+// When we get the leaderboard 
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
@@ -75,6 +81,7 @@ socket.on('player-update', ({ name, avatar }) => {
 
 socket.emit('get-question');
 
+
 // Listen for question updates from the server
 socket.on('new-question', (question) => {
   console.log("🟢 New Question Received:", question);
@@ -86,53 +93,76 @@ socket.on('new-question', (question) => {
   // document.getElementById('answer').value = '';
 });
 
-function updateLeaderboard(players) {
-  // const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = ''; 
+// function updateLeaderboard(players) {
+//   // const leaderboard = document.getElementById('leaderboard');
+//   leaderboard.innerHTML = ''; 
 
-  players.sort((a, b) => b.score - a.score);
+//   players.sort((a, b) => b.score - a.score);
 
-  players.forEach((player, index) => {
-    const entry = document.createElement('div');
-    entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
-    leaderboard.appendChild(entry);
+//   players.forEach((player, index) => {
+//     const entry = document.createElement('div');
+//     entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
+//     leaderboard.appendChild(entry);
+//   });
+
+//     players.forEach((player, index) => {
+//     const entry = document.createElement('div');
+//     entry.classList.add('leaderboard-entry');
+
+//     const avatarImg = document.createElement('img');
+//     avatarImg.src = (player.avatar && player.avatar !== 'null') ? player.avatar : "../img/user-solid.svg";
+//     avatarImg.classList.add('avatar-icon');
+
+//     const text = document.createElement('span');
+//     text.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
+
+//     entry.appendChild(avatarImg);
+//     entry.appendChild(text);
+//     leaderboard.appendChild(entry);
+//   });
+// }
+
+// const playerClassMap = ['one', 'two', 'three'];
+// function updateLobbyPlayers(players) {
+//   for (let i = 0; i < 3; i++) {
+//     const name = players[i]?.name || "Unnamed";
+//     const avatar = (players[i]?.avatar && players[i].avatar !== 'null') ? players[i].avatar : "../img/user-solid.svg";
+//     const status = players[i] ? "Connected" : "Unoccupied";
+
+//     const nameEl = document.querySelector(`.player-${playerClassMap[i]}`);
+//     const statusEl = document.querySelector(`.player-${playerClassMap[i]}-status`);
+//     const avatarEl = document.querySelector(`.player-${playerClassMap[i]}-icon`);
+
+//     if (nameEl) nameEl.textContent = name;
+//     if (statusEl) statusEl.textContent = status;
+//     if (avatarEl) avatarEl.src = avatar;
+//   }
+// }
+
+
+
+// Receive lobby updates
+socket.on('lobby-update', (players) => {
+  const slots = [
+    document.getElementById('player-slot-1'),
+    document.getElementById('player-slot-2'),
+    document.getElementById('player-slot-3'),
+  ];
+
+  slots.forEach((slot) => {
+    slot.querySelector('h4').textContent = 'Unoccupied';
+    slot.querySelector('img').src = '../img/user-solid.svg';
+    slot.querySelector('p').textContent = 'Unnamed';
   });
 
-    players.forEach((player, index) => {
-    const entry = document.createElement('div');
-    entry.classList.add('leaderboard-entry');
-
-    const avatarImg = document.createElement('img');
-    avatarImg.src = (player.avatar && player.avatar !== 'null') ? player.avatar : "../img/user-solid.svg";
-    avatarImg.classList.add('avatar-icon');
-
-    const text = document.createElement('span');
-    text.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
-
-    entry.appendChild(avatarImg);
-    entry.appendChild(text);
-    leaderboard.appendChild(entry);
+  players.forEach((player, i) => {
+    if (slots[i]) {
+      slots[i].querySelector('h4').textContent = 'Ready!';
+      slots[i].querySelector('img').src = player.avatar || '../img/user-solid.svg';
+      slots[i].querySelector('p').textContent = player.name;
+    }
   });
-}
-
-const playerClassMap = ['one', 'two', 'three'];
-function updateLobbyPlayers(players) {
-  for (let i = 0; i < 3; i++) {
-    const name = players[i]?.name || "Unnamed";
-    const avatar = (players[i]?.avatar && players[i].avatar !== 'null') ? players[i].avatar : "../img/user-solid.svg";
-    const status = players[i] ? "Connected" : "Unoccupied";
-
-    const nameEl = document.querySelector(`.player-${playerClassMap[i]}`);
-    const statusEl = document.querySelector(`.player-${playerClassMap[i]}-status`);
-    const avatarEl = document.querySelector(`.player-${playerClassMap[i]}-icon`);
-
-    if (nameEl) nameEl.textContent = name;
-    if (statusEl) statusEl.textContent = status;
-    if (avatarEl) avatarEl.src = avatar;
-  }
-}
-
-
+});
 
 /*------------------------------------------------------------------------->
   Utility Functions 

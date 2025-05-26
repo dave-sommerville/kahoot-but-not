@@ -1,5 +1,7 @@
 'use strict';
 
+const socket = io();
+
 /*------------------------------------------------------------------------->
   Utility Functions 
 <-------------------------------------------------------------------------*/
@@ -9,114 +11,118 @@ function select(selector, scope = document) {
 }
 
 function listen(event, element, callback) {
-  return element.addEventListener(event, callback);
+  return element?.addEventListener?.(event, callback);
 }
 
 function isImageFile(file) {
-  return file && file.type.startsWith('image');
+  return file && file.type?.startsWith?.('image');
 }
-
 
 function sendAdminCommand(cmd) {
-  socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
+  if (socket && cmd) socket.emit('admin-action', cmd); // Safety check
 }
-const socket = io(); // default namespace
 
+// Button Setup (with null checks)
 const startBtn = document.getElementById('startGameBtn');
 const cancelBtn = document.getElementById('cancelGameBtn');
 
 listen('click', startBtn, () => {
-  socket.emit('admin-action', { type: 'start-game' });
+  socket.emit('admin-command', { type: 'start-game' });
+  socket.emit('admin-start-game');
 });
 
 listen('click', cancelBtn, () => {
-  socket.emit('admin-action', { type: 'cancel-game' });
+  socket.emit('admin-command', { type: 'cancel-game' });
 });
 
-// Request the leaderboard when the page loads
-socket.emit('get-leaderboard');
+// Set number of questions 
+const setCountBtn = document.getElementById('setQuestionCountBtn');
+const questionCountInput = document.getElementById('questionCount');
 
-// Handle leaderboard update
-socket.on('leaderboard-update', (players) => {
-  console.log('🏆 Received leaderboard update:', players);
-  updateLeaderboard(players);
-  updateLobbyPlayers(players);  // new function to update name display
-});
-
-
-socket.on('new-question', (question) => {
-  console.log("🟢 New Question Received:", question);
-
-  document.querySelector('.question-text').innerText = question.question_text;
-  document.querySelector('.opt-one-txt').innerText = question.option_a;
-  document.querySelector('.opt-two-txt').innerText = question.option_b;
-  document.querySelector('.opt-three-txt').innerText = question.option_c;
-  document.querySelector('.opt-four-txt').innerText = question.option_d;
-  document.getElementById('answer').value = '';
-});
-
-
-// Listen for question updates from the server
-socket.on('new-question', (question) => {
-  console.log("Got questions!"); 
-  const questionText = document.getElementById('question-text');
-  if (questionText && question && question.question_text) {
-    questionText.textContent = question.question_text;
+listen('click', setCountBtn, () => {
+  const count = parseInt(questionCountInput.value, 10);
+  if (count > 0) {
+    socket.emit('admin-set-question-count', count);
   } else {
-    questionText.textContent = 'No questions available';
+    alert("Please enter a valid number of questions.");
   }
 });
 
-// Leaderboard update logic
-function updateLeaderboard(players) {
-  const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = ''; // Clear existing content
 
-  // Optional: sort players by score in descending order
-  // players.sort((a, b) => b.score - a.score);
+// Next question 
+const nextQBtn = document.getElementById('nextQuestionBtn');
 
-  players.forEach((player, index) => {
-    const entry = document.createElement('div');
-    entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
-    leaderboard.appendChild(entry);
+// Should ask for next question 
+listen('click', nextQBtn, () => {
+  socket.emit('admin-next-question');
+});
+
+// If the server is waiting for the admin to press next
+socket.on('awaiting-admin-next', () => {
+  // Can use UI or element to display it 
+  alert("Players have answered. Press 'Next Question' to continue.");
+});
+
+/*--Player Display Updatess--*/
+
+// Live update of current players in lobby
+socket.on('current-players', (players = []) => {
+  const container = document.querySelector('.admin-player-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  players.forEach(({ name, avatar }) => {
+    const div = document.createElement('div');
+    div.classList.add('player-slot');
+
+    const safeName = name || 'Unnamed';
+    const safeAvatar = avatar || '../img/user-solid.svg';
+
+    div.innerHTML = `
+      <img src="${safeAvatar}" onerror="this.src='../img/user-solid.svg'" />
+      <span>${safeName}</span>
+    `;
+    container.appendChild(div);
   });
-}
-
-const playerClassMap = ['one', 'two', 'three'];
-
-function updateLobbyPlayers(players) {
-  for (let i = 0; i < 3; i++) {
-    const name = players[i]?.name || "Unnamed";
-    const status = players[i] ? "Connected" : "Unoccupied";
-
-    const nameEl = document.querySelector(`.player-${playerClassMap[i]}`);
-    const statusEl = document.querySelector(`.player-${playerClassMap[i]}-status`);
-
-    if (nameEl) nameEl.textContent = name;
-    if (statusEl) statusEl.textContent = status;
-  }
-}
-
-const scoreTrigger = select('.score-trigger');
-const scoreDisplay = select('.score-display');
-listen("click", scoreTrigger, () =>{
-  scoreDisplay.classList.toggle('open');
 });
 
-const form = document.getElementById('questionForm');
-const formStatus = document.getElementById('formStatus');
+// Slots update for admin view
+socket.on('leaderboard-update', (players = []) => {
+  const slotIds = ['player-slot-1', 'player-slot-2', 'player-slot-3'];
 
-// form.addEventListener('submit', (e) => {
-//   e.preventDefault();
+  slotIds.forEach((id, index) => {
+    const slot = document.getElementById(id);
+    if (!slot) {
+      console.log(`Slot with ID ${id} not found. Skipping update.`);
+      return; 
+     } // Ensure element exists
 
-//   const question = {
-//     question_text: document.getElementById('question_text').value,
-//     option_a: document.getElementById('option_a').value,
-//     option_b: document.getElementById('option_b').value,
-//     option_c: document.getElementById('option_c').value,
-//     option_d: document.getElementById('option_d').value,
-//     correct_option: document.getElementById('correct_option').value.toUpperCase()
-//   };
+    const h4 = slot.querySelector('h4');
+    const img = slot.querySelector('img');
+    const p = slot.querySelector('p');
 
-//   socket.emit('add-question', question);
-// });
+    console.log(`Updating slot: ${id}, Index: ${index}, Player:`, players[index]); // Debug log
+
+    if (players[index]) {
+      h4.textContent = 'Ready!';
+      img.src = players[index].avatar || '../img/user-solid.svg';
+      p.textContent = players[index].name || 'Unnamed';
+    } else {
+      h4.textContent = 'Unoccupied';
+      img.src = '../img/user-solid.svg';
+      p.textContent = 'Unnamed';
+    }
+  });
+});
+/*------------------------------------------------------------------------->
+  Optional: Game State Alerts
+<-------------------------------------------------------------------------*/
+
+socket.on('game-started', () => {
+  alert("✅ Game started!");
+});
+
+socket.on('lobby-cleared', () => {
+  alert("❌ Lobby cleared.");
+});

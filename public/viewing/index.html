@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#ffffff">
     <script src="/socket.io/socket.io.js"></script>
 
-    <title></title>
+    <title>Viewing page</title>
     <!-- <link rel="icon" href="./src/img/favicon.png" type="image/x-icon"> -->
     
     <!-- External stylesheets -->
@@ -29,7 +29,8 @@
           avatar and user name. Once three users have joined (or at least one) the admin can start the game. 
           I think we should leave the game control only on the admin frontend.          
     -->
-    <section class="lobby f-col">
+    <!-- Lobby section  -->
+    <!-- <section class="lobby f-col">
       <div class="flex sp-even">
         <div class="center f-col">
           <h4 class="player-one-status">Unoccupied</h4>
@@ -52,10 +53,12 @@
           </div>
           <p class="player-three">Unnamed</p>
         </div>
-      </div>
-    </section>
+      </div> 
+    </section> -->
     <!-- Main Content -->
     <section class="game-area f-col">
+      <!-- Timer  -->
+      <div class="timer-box" id="question-timer">Time: 15s</div>
       <div class="question-display-viewing f-col">
         <h3>Current Question:</h3>
         <div class="question-wrapper flex">
@@ -75,17 +78,25 @@
           <p class="opt-four-txt">Sample 4</p>
         </div>
       </div>
-    <section class="score-display">
-      <h3 class="score-trigger pointer hover">
-        High Scores
-      </h3>
-      <div class="high-scores" id="leaderboard">
+      <div class="leaderboard-section">
+        <!-- Current Game Leaderboard -->
+        <div class="leaderboard-box">
+          <h3>Current Game</h3>
+          <div class="current-game-leaderboard">
+            <!-- JS will insert .leaderboard-entry elements here -->
+          </div>
+        </div>
+
+        <!-- Global Leaderboard -->
+        <div class="leaderboard-box">
+          <h3>All-Time Scores</h3>
+          <div class="global-leaderboard">
+            <!-- JS will insert .leaderboard-entry elements here -->
+          </div>
+        </div>
       </div>
-    </section>
-    <button class="view">View Questions</button>
   </main>
-    
-</body>
 
 </body>
+
 </html>

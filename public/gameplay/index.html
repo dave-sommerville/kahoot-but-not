@@ -7,7 +7,7 @@
     <meta name="description" content="Dave Sommerville">
     <meta name="theme-color" content="#ffffff">
     <script src="/socket.io/socket.io.js"></script>
-    <title></title>
+    <title>Gameplay</title>
     <link rel="icon" href="./src/img/favicon.png" type="image/x-icon">
     
     <!-- External stylesheets -->
@@ -23,32 +23,19 @@
   <header>
     <h1>Cyber Clash</h1>
   </header>
-  <main>
-    <!--Here the player will have to enter their name and choose profile images (will hardcode options)-->
-    <section class="player-lobby f-col">
-      <div class="avatar-wrapper">
-        <img src="../img/user-solid.svg">
-      </div>
-      <button class="select-pic">Choose</button>
-      <input id="playerName" placeholder="Enter your name" class="name-entry">
-      <button class="select-name">Enter</button>
-    </section>
+  <!-- Give margin class so I can change content on game over  -->
+  <main class="game-area">
     <!--
       Here will be the game area. The formatting of this will depend on the type of question. 
       Whe could create formatting for each type of question and then only make the appropriate one visible
       or we can change the question formatting dynamically with JS and css classes
     -->
-
+    <div class="timer">Time Left: 60s</div>
+    <span id="playerScore"></span>
     <div id="questionArea" class="question-wrapper flex">
       <p class="question-text">Blah blah blah, which is it?</p>
     </div>
-    
-    <input id="answer" placeholder="Your answer">
-    <button class="submit">Submit</button>
     <section class="question-display f-col">
-      <div class="question-wrapper flex">
-        <p class="question-text">Blah blah blah, which is it?</p>
-      </div>
       <div class="multiple-choice-wrapper">
         <div class="option-one">
           <p class="opt-one-txt">Sample 1</p>
@@ -75,8 +62,8 @@
           <p class="opt-two-txt">False</p>
         </div>
       </div>
-      <!-- <input id="answer" placeholder="Your answer"> -->
       <button class="submit">Submit</button>
+      <div id="yippeeMessage" style="display:none;">🎉 Yippee!</div>
     </section>
   </main>
   <script src="/socket.io/socket.io.js"></script>
