@@ -30,6 +30,7 @@ selectName.addEventListener('click', () => {
   window.location.href = "./index.html";
 });
 
+
 let profilePic = "";
 let imageIndex = 0;
 const avatar = select(".avatar");

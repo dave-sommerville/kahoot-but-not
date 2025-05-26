@@ -24,11 +24,48 @@ console.log('Emitting player-join with:', {
   avatar: localStorage.getItem('profilePic')
 });
 
+
+socket.on('leaderboard-data', (data) => {
+  updateLeaderboardUI(data); // Implement this to update the DOM
+});
+
+// Auto-refresh
+setInterval(() => {
+  socket.emit('request-leaderboard');
+}, 5000); // update every 5 seconds
+
+function updateLeaderboardUI(data) {
+  const highScoresList = document.querySelector('.high-scores');
+  highScoresList.innerHTML = ""; // Clear the list first
+
+  data.forEach((player, index) => {
+    const li = document.createElement('li');
+    li.textContent = `${index + 1}. ${player.name} - ${player.score}`;
+    highScoresList.appendChild(li);
+  });
+
+  // Optional: Populate fixed slots too
+  const fixedSlots = document.querySelectorAll('.current-scores > div');
+  fixedSlots.forEach((slot, i) => {
+    if (data[i]) {
+      slot.querySelector('h4').textContent = data[i].name;
+      slot.querySelector('p').textContent = `Score: ${data[i].score}`;
+    } else {
+      slot.querySelector('h4').textContent = "";
+      slot.querySelector('p').textContent = "";
+    }
+  });
+}
+
+'use strict';
+
+// Request the leaderboard when the page loads
 socket.emit('get-leaderboard');
 
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
+  updateLobbyPlayers(players);  // new function to update name display
 });
 
 socket.on('viewer-update-players', (players) => {
@@ -74,6 +111,19 @@ socket.on('new-question', (question) => {
   }
 });
 
+socket.emit('get-question');
+
+// Listen for question updates from the server
+socket.on('new-question', (question) => {
+  console.log("🟢 New Question Received:", question);
+  document.querySelector('.question-text').innerText = question.question_text;
+  document.querySelector('.opt-one-txt').innerText = question.option_a;
+  document.querySelector('.opt-two-txt').innerText = question.option_b;
+  document.querySelector('.opt-three-txt').innerText = question.option_c;
+  document.querySelector('.opt-four-txt').innerText = question.option_d;
+  // document.getElementById('answer').value = '';
+});
+
 function updateLeaderboard(players) {
   leaderboard.innerHTML = ''; 
 
@@ -85,6 +135,22 @@ function updateLeaderboard(players) {
       `<img src="../img/${p.avatar}" alt="${p.name}" class="leaderboard-avatar">
       ${i+1}. ${p.name} – ${p.score} pts`;
     leaderboard.appendChild(div);
+  });
+
+    players.forEach((player, index) => {
+    const entry = document.createElement('div');
+    entry.classList.add('leaderboard-entry');
+
+    const avatarImg = document.createElement('img');
+    avatarImg.src = (player.avatar && player.avatar !== 'null') ? player.avatar : "../img/user-solid.svg";
+    avatarImg.classList.add('avatar-icon');
+
+    const text = document.createElement('span');
+    text.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
+
+    entry.appendChild(avatarImg);
+    entry.appendChild(text);
+    leaderboard.appendChild(entry);
   });
 }
 

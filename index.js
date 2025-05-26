@@ -15,12 +15,22 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.send('<h1>Welcome to Cyber Clash 🎮</h1><p>Go to <a href="gameplay/index.html">Gameplay</a> or <a href="admin/index.html">Admin</a></p> or <a href="gameplay/signUp.html">SignUp</a> or <a href="viewing/index.html">viewing</a>');
+  res.send(`
+    <h1>Welcome to Cyber Clash 🎮</h1>
+    <p>
+      Go to 
+      <a href="/gameplay/index.html">Gameplay</a>, 
+      <a href="/admin/index.html">Admin</a>, or 
+      <a href="/viewing/index.html">Viewing</a>
+    </p>
+  `);
 });
 
+// --- Helper Functions ---
 function getRandomQuestion(callback) {
   db.get(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
     if (err) {
+      console.error("Error fetching question:", err.message);
       console.error("Error fetching question:", err.message);
       callback(null);
     } else {
@@ -32,7 +42,7 @@ function getRandomQuestion(callback) {
 function getLeaderboard(callback) {
   db.all(`SELECT name, avatar, score FROM players ORDER BY score DESC LIMIT 10`, [], (err, rows) => {
     if (err) {
-      console.error(" Error fetching leaderboard:", err.message);
+      console.error("Error fetching leaderboard:", err.message);
       callback([]);
     } else {
       callback(rows);
@@ -195,13 +205,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('submit-answer', ({ nickname, answer }) => {
-    console.log(` Received answer from ${nickname}: ${answer}`);
-
     const question = playerStates[nickname];
-
     if (!question || !question.correct_option) {
-      console.warn(" Question is missing or not assigned to player");
-      socket.emit('error', 'No active question to validate.');
+      socket.emit('error', 'No active question');
       return;
     }
 
@@ -285,6 +291,15 @@ io.on('connection', (socket) => {
   });
 });
 
+// --- Start Server ---
 server.listen(PORT, () => {
-  console.log(` Server listening on http://localhost:${PORT}`);
+  console.log(`Server running at http://192.168.2.36:${PORT}`);
 });
+setInterval(emitLeaderboardUpdate, 5000);
+// setInterval(() => {
+//   getRandomQuestion((question) => {
+//     if (question) {
+//       io.emit('new-question', question);
+//     }
+//   });
+// }, 5000);

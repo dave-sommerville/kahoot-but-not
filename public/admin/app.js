@@ -74,6 +74,7 @@ socket.emit('get-leaderboard');
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
+  updateLobbyPlayers(players);  // new function to update name display
 });
 
 socket.on('new-question', (question) => {
