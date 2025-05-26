@@ -18,40 +18,85 @@ let selectedAnswer = '';
 let timerInterval = null;
 let timeLeft = 60;
 
-// Enforce sign-up every time
-if (!nickname || !avatar) {
-  // Clear any partial data just in case
-  localStorage.removeItem('nickname');
-  localStorage.removeItem('avatar');
-  alert("Please sign up first!");
+let countdown = 60;
+let countdownInterval = null;
+
+// let countdown = 60;
+const countdownEl = document.getElementById("countdown");
+
+// const countdownInterval = setInterval(() => {
+//   countdown--;
+//   countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+//   if (countdown <= 0) {
+//     clearInterval(countdownInterval);
+//   }
+// }, 1000);
+function startCountdown(duration = 60) {
+  clearInterval(countdownInterval);
+  countdown = duration;
+  countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+  countdownInterval = setInterval(() => {
+    countdown--;
+    countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+    }
+  }, 1000);
+}
+
+socket.on("time-up", () => {
+  //new
+  clearInterval(countdownInterval);
+  quesDisplay.style.display = 'none';
+  StopMsg.style.display = 'block';
+  StopMsg.innerText = "Time’s up! Thanks for playing.";
+  setTimeout(() => {
+      window.location.href = '../viewing/index.html';
+  }, 5000);
+});
+
+if (!nickname) {
+  alert("Please sign up first to set your nickname!");
   window.location.href = "./signUp.html";
 } else {
   console.log("✅ Player authenticated:", nickname, avatar);
   socket.emit('player-join', { nickname, avatar });
 }
 
-// Timer
-function startTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    timerDisplay.innerText = `Time Left: ${timeLeft}s`;
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      socket.emit('submit-answer', { nickname, answer: selectedAnswer || '' });
-    }
-  }, 1000);
-}
-
-// Highlight answer feedback
-function highlightOptions(correctAnswer, userAnswer) {
-  allQuestype.forEach(option => {
-    const text = option.querySelector('p')?.innerText.trim().toLowerCase() || '';
-    option.classList.remove('selected', 'correct', 'wrong');
-    if (text === correctAnswer) option.classList.add('correct');
-    if (text === userAnswer && userAnswer !== correctAnswer) option.classList.add('wrong');
+  socket.on('gameStarted', () => {
+    console.log('Game started!');
+    submitBtn.disabled = false;
+    submitBtn.style.backgroundColor = '#c2cfa4';
+    pauseMsg.style.display = 'none';
+    allQuestype.forEach(option => option.style.pointerEvents = 'auto');
   });
-}
+
+  socket.on('gamePaused', () => {
+    console.log('⏸Game paused!');
+    //new
+    clearInterval(countdownInterval);
+    submitBtn.disabled = true;
+    pauseMsg.style.display = 'block';
+    allQuestype.forEach(option => option.style.pointerEvents = 'none');
+  });
+
+  socket.on('gameStopped', () => {
+    console.log('Game stopped!');
+    clearInterval(countdownInterval);
+    submitBtn.disabled = true;
+    pauseMsg.style.display = 'none';
+    quesDisplay.style.display = 'none';
+    StopMsg.style.display = 'block';
+    StopMsg.innerText = "Quiz Stopped! \nThank you for Playing;";
+    allQuestype.forEach(option => option.style.pointerEvents = 'none');
+    setTimeout(() => {
+      window.location.href = '../viewing/index.html';
+    }, 5000); 
+  });
+
 
 //  New question
 socket.on('new-question', (question) => {
@@ -62,6 +107,14 @@ socket.on('new-question', (question) => {
 
   allQuestype.forEach(el => el.classList.remove('selected', 'correct', 'wrong'));
   questiontxt.innerText = question.question_text;
+  //new
+  // startCountdown(60);
+  let remaining = 60;
+  if (question.startTime) {
+    const elapsed = Math.floor((Date.now() - question.startTime) / 1000);
+    remaining = Math.max(60 - elapsed, 0);
+  }
+  startCountdown(remaining);
 
   if (question.question_type === 'tf') {
     mcqWrapper.style.display = 'none';

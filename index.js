@@ -27,6 +27,7 @@ app.get('/', (req, res) => {
       <a href="/gameplay/index.html">Gameplay</a>, 
       <a href="/admin/index.html">Admin</a>, or 
       <a href="/viewing/index.html">Viewing</a>
+      <a href="/gameplay/signUp.html">Sign-up</a>
     </p>
   `);
 });
@@ -43,6 +44,10 @@ io.on('connection', (socket) => {
   require('./server/player')(io, socket, db);
 });
 
-server.listen(3000, () => {
-  console.log(' Server running on http://localhost:3000');
+// --- Start Server ---
+// server.listen(PORT, () => {
+//   console.log(`Server running at http://192.168.2.36:${PORT}`);
+// });
+server.listen(PORT, 'localhost', () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
 });
