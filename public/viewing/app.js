@@ -8,6 +8,8 @@ function listen(event, selector, callback) {
 }
 
 const socket = io(); 
+console.log('Nickname:', localStorage.getItem('nickname'));
+console.log('Avatar:', localStorage.getItem('profilePic'));
 const questionText = document.getElementById('question-text');
 const leaderboard = document.getElementById('leaderboard');
 
@@ -62,20 +64,46 @@ socket.on('leaderboard-update', (players) => {
   updateLobbyPlayers(players);  // new function to update name display
 });
 
-socket.on('player-update', ({ name, avatar }) => {
-  const nameEls = [...document.querySelectorAll('.player-one, .player-two, .player-three')];
-  const iconEls = [...document.querySelectorAll('.player-one-icon, .player-two-icon, .player-three-icon')];
+socket.on('viewer-update-players', (players) => {
+  const playerNameEls = [
+    document.querySelector('.player-one'),
+    document.querySelector('.player-two'),
+    document.querySelector('.player-three')
+  ];
+  const playerStatusEls = [
+    document.querySelector('.player-one-status'),
+    document.querySelector('.player-two-status'),
+    document.querySelector('.player-three-status')
+  ];
+  const playerImgEls = [
+    document.querySelector('.player-one-avatar'),
+    document.querySelector('.player-two-avatar'),
+    document.querySelector('.player-three-avatar')
+  ];
 
-  for (let i = 0; i < nameEls.length; i++) {
-    // Prevent duplicates
-    if (nameEls[i].textContent === name) return;
+  players.forEach((player, index) => {
+    console.log("Rendering player:", player.name, "Avatar:", player.avatar);
+    if (playerNameEls[index]) {
+      playerNameEls[index].textContent = player.name || "Unnamed";
+      playerStatusEls[index].textContent = "Ready";
 
-    // Fill in first empty slot
-    if (nameEls[i].textContent === "Unnamed") {
-      nameEls[i].textContent = name;
-      iconEls[i].src = avatar || "../img/user-solid.svg";
-      break;
+      if (player.avatar) {
+        playerImgEls[index].src = `../img/${player.avatar}`;
+        console.log("Image source set to:", playerImgEls[index].src);
+      } else {
+        playerImgEls[index].src = '/img/user-solid.svg';
+      }
+      console.log(`✅ Player ${index + 1} => Name: ${player.name}, Avatar: ${player.avatar}`);
     }
+  });
+});
+
+
+socket.on('new-question', (question) => {
+  if (questionText && question && question.question_text) {
+    questionText.textContent = question.question_text;
+  } else {
+    questionText.textContent = 'No questions available';
   }
 });
 
@@ -213,4 +241,3 @@ const scoreDisplay = select('.score-display');
 listen("click", scoreTrigger, () =>{
   scoreDisplay.classList.toggle('open');
 });
-

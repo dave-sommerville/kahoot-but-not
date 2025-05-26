@@ -1,6 +1,5 @@
 'use strict';
 
-const socket = io();
 
 /*------------------------------------------------------------------------->
   Utility Functions 
@@ -18,11 +17,12 @@ function isImageFile(file) {
   return file && file.type?.startsWith?.('image');
 }
 
-function sendAdminCommand(cmd) {
-  if (socket && cmd) socket.emit('admin-action', cmd); // Safety check
-}
 
-// Button Setup (with null checks)
+function sendAdminCommand(cmd) {
+  socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
+}
+const socket = io(); // default namespace
+
 const startBtn = document.getElementById('startGameBtn');
 const cancelBtn = document.getElementById('cancelGameBtn');
 

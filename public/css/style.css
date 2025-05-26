@@ -59,8 +59,8 @@
 }
 .circle {
   border-radius: 50%;
-  width: 105px;
-  height: 105px;
+  width: 100px;
+  height: 100px;
   display: flex;
   justify-content: center;
   background-color: var(--clr-secondary);

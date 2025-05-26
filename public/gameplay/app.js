@@ -122,7 +122,7 @@ allQuestype.forEach(el => {
 //  Submit click
 submitBtn.addEventListener('click', () => {
   if (!selectedAnswer) {
-    alert("Please select an answer!");
+    warningMsg.style.display = 'block';
     return;
   }
   clearInterval(timerInterval);

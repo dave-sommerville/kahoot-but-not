@@ -28,20 +28,22 @@ let imageIndex = 0;
 let profilePic = imageFiles[imageIndex];
 avatar.src = profilePic;
 
-// 🔄 Arrow navigation
+//  Arrow navigation
 listen("click", rightArrow, () => {
   imageIndex = (imageIndex + 1) % imageFiles.length;
   profilePic = imageFiles[imageIndex];
   avatar.src = profilePic;
+  console.log("Selected avatar index:", imageIndex);
 });
 
 listen("click", leftArrow, () => {
   imageIndex = (imageIndex - 1 + imageFiles.length) % imageFiles.length;
   profilePic = imageFiles[imageIndex];
   avatar.src = profilePic;
+  console.log("Selected avatar index:", imageIndex);
 });
 
-// ✅ Finalize sign-up
+//  Finalize sign-up
 selectName.addEventListener('click', () => {
   const nickname = playerName.value.trim();
 

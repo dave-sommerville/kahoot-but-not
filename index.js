@@ -33,16 +33,16 @@ app.get('/', (req, res) => {
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
-  // 🔁 Admin logic first so it can be passed into main logic
+  // Admin logic first so it can be passed into main logic
   const adminLogic = require('./server/admin')(io, socket, db);
 
-  // 🧠 Pass admin logic into main logic
+  //  Pass admin logic into main logic
   require('./server/main')(io, socket, db, adminLogic);
 
-  // 🎮 Player-specific events
+  //  Player-specific events
   require('./server/player')(io, socket, db);
 });
 
 server.listen(3000, () => {
-  console.log('🚀 Server running on http://localhost:3000');
+  console.log(' Server running on http://localhost:3000');
 });
