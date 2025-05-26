@@ -293,7 +293,7 @@ io.on('connection', (socket) => {
 
 // --- Start Server ---
 server.listen(PORT, () => {
-  console.log(`Server running at http://192.168.2.36:${PORT}`);
+  console.log(`Server running at http://10.42.0.1:${PORT}`);
 });
 setInterval(emitLeaderboardUpdate, 5000);
 // setInterval(() => {
