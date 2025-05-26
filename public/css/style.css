@@ -43,9 +43,9 @@
   display: flex;
   flex-direction: column;
 }
-.circle {
-  border-radius: 50%;
-  overflow: hidden;
+.center {
+  justify-content: center;
+  align-items: center;
 }
 
 .hidden {
@@ -100,33 +100,60 @@
 /*----------------------------------------------------------->
   
 <-----------------------------------------------------------*/
-body {
+.viewing-body {
   background-color: var(--clr-bg);
+	background: linear-gradient(
+		to right,
+		#008000,
+		#00e600,
+		#b3ffb3,
+		#00e600,
+		#008000,
+    #008000,
+		#00e600,
+		#b3ffb3,
+		#00e600,
+		#008000
+	);
+}
+
+.play-body {
+  background-color: var(--clr-bg);
+	background: linear-gradient(
+		to right,
+		#008000,
+		#00e600,
+		#b3ffb3,
+		#00e600,
+		#008000
+	);
 }
 
 header {
-  height: 20svh;
+  height: 10svh;
+  line-height: 10svh;
+  background-color: #012;
   font-size: 2rem;
-  color: #fefefe;
+  color: #00e600;
   text-align: center;
 }
 main {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
 button {
-  /* height: 40px;
-  width: 80px; */
+  height: 40px;
+  width: 80px; 
   border-radius: var(--app-border-rad);
   background-color: #bbd876;
   border: solid 1px #012;
   font-size: 1.2rem;
   padding: 1.75rem; 
+} 
+section {
+  padding: 15px;
 }
-
 /*---------------------------------------------->
 Admin/Viewing
 <----------------------------------------------*/
@@ -297,4 +324,136 @@ Game Play
 .correct {
   color: green;
   font-weight: bold;
+}
+
+
+.wrap {
+	border: 8px solid;
+	border-image: linear-gradient(
+			-50deg,
+			green,
+			#00b300,
+			forestgreen,
+			green,
+			lightgreen,
+			#00e600,
+			green
+		)
+		1;
+}
+:root {
+  --app-t-shadow: 			
+    0 0 2px #0f0,
+    0 0 8px #0e0,
+    0 0 16px #0f0,
+    0 0 32px #0e0,
+    0 0 64px #4f4; 
+}
+
+.glow-text {
+	font-size: 2rem;
+	color: #0f0;
+	text-shadow: var(--app-t-shadow);
+	animation: flicker 1.5s infinite alternate;
+}
+
+.animate span {
+	opacity: 0;
+	transform: translate(0, -100px) rotate(360deg) scale(0);
+	animation: revolveDrop .3s forwards;
+}
+
+.animate span {
+	display: inline-block;
+}
+.animate span:nth-of-type(2) {
+	animation-delay: .05s;
+}
+.animate span:nth-of-type(3) {
+	animation-delay: .1s;
+}
+.animate span:nth-of-type(4) {
+	animation-delay: .15s;
+}
+.animate span:nth-of-type(5) {
+	animation-delay: .2s;
+}
+.animate span:nth-of-type(6) {
+	animation-delay: .25s;
+}
+.animate span:nth-of-type(7) {
+	animation-delay: .3s;
+}
+.animate span:nth-of-type(8) {
+	animation-delay: .35s;
+}
+.animate span:nth-of-type(9) {
+	animation-delay: .4s;
+}
+.animate span:nth-of-type(10) {
+	animation-delay: .45s;
+}
+.animate span:nth-of-type(11) {
+	animation-delay: .5s;
+}
+.animate span:nth-of-type(12) {
+	animation-delay: .55s;
+}
+.animate span:nth-of-type(13) {
+	animation-delay: .6s;
+}
+.animate span:nth-of-type(14) {
+	animation-delay: .65s;
+}
+.animate span:nth-of-type(15) {
+	animation-delay: .7s;
+}
+.animate span:nth-of-type(16) {
+	animation-delay: .75s;
+}
+.animate span:nth-of-type(17) {
+	animation-delay: .8s;
+}
+.animate span:nth-of-type(18) {
+	animation-delay: .85s;
+}
+.animate span:nth-of-type(19) {
+	animation-delay: .9s;
+}
+.animate span:nth-of-type(20) {
+	animation-delay: .95s;
+}
+
+@keyframes revolveDrop {
+	30% {
+		transform: translate(0, -50px) rotate(180deg) scale(1);
+	}
+
+	60% {
+		transform: translate(0, 20px) scale(.8) rotate(0deg);
+	}
+
+	100% {
+		transform: translate(0) scale(1) rotate(0deg);
+		opacity: 1;
+	}
+}
+
+@keyframes flicker {
+	0%, 100% {
+			text-shadow: 
+					0 0 3px #0f0,
+					0 0 7px #0f0,
+					0 0 15px #0f0,
+					0 0 30px #0f0,
+					0 0 60px #0f0;
+	}
+	50% {
+			text-shadow: 
+					0 0 2px #0f0,
+					0 0 5px #0f0,
+					0 0 10px #0f0,
+					0 0 20px #0f0,
+					0 0 40px #0f0;
+	}
 }

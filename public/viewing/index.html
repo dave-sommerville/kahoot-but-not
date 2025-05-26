@@ -20,17 +20,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">    
     <script defer src="./app.js"></script>
 </head>
-<body class="no-select">
-  <header>
-    <h1>Cyber Clash</h1>
+<body class="no-select viewing-body">
+  <header class="glow-text">
+    <h1 class="animate title">
+      <span>C</span>
+      <span>y</span>
+      <span>b</span>
+      <span>e</span>
+      <span>r</span>
+      <span> </span>
+      <span>C</span>
+      <span>l</span>
+      <span>a</span>
+      <span>s</span>
+      <span>h</span>
+    </h1>
   </header>
-  <main class="f-col">
+  <main class="flex">
     <!--  Lobby will hold placeholders for participants when game is not running. As users join it will update the chosen
           avatar and user name. Once three users have joined (or at least one) the admin can start the game. 
           I think we should leave the game control only on the admin frontend.          
     -->
-    <section class="lobby f-col">
-      <div class="flex sp-even">
+    <section class="f-col center">
+      <div class="lobby  wrap flex sp-even">
         <div class="center f-col">
           <h4 class="player-one-status">Unoccupied</h4>
           <div class="circle">
@@ -53,10 +65,7 @@
           <p class="player-three">Unnamed</p>
         </div>
       </div>
-    </section>
-    <!-- Main Content -->
-    <section class="game-area f-col">
-      <div class="question-display-viewing f-col">
+      <div class="question-display-viewin f-col">
         <h3>Current Question:</h3>
         <div class="question-wrapper flex">
         <p class="question-text">Blah blah blah, which is it?</p>
@@ -75,6 +84,7 @@
           <p class="opt-four-txt">Sample 4</p>
         </div>
       </div>
+    </section>
     <section class="score-display">
       <h3 class="score-trigger pointer hover">
         High Scores
@@ -82,7 +92,6 @@
       <div class="high-scores" id="leaderboard">
       </div>
     </section>
-    <button class="view">View Questions</button>
   </main>
     
 </body>
