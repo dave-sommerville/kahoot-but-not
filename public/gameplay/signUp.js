@@ -7,30 +7,27 @@ function listen(event, selector, callback) {
   return selector.addEventListener(event, callback);
 }
 
-const selectName = document.querySelector('.select-name');
-const playerName = document.getElementById('playerName');
+const socket = io();
+const selectName = select('.select-name');
+const playerName = select('#playerName');
+const waitingMessage = select('#waitingMessage');
+const playerLobby = select('#playerLobby');
+
+socket.on('gameStarted', () => {
+  waitingMessage.style.display = 'none';
+  playerLobby.style.display = 'flex'; 
+});
+
 
 selectName.addEventListener('click', () => {
   const nickname = playerName.value.trim();
   if (!nickname) {
     alert("Please enter your name!");
     return;
-  }
-
-  // Save to localStorage (optional but handy for later use)
-  localStorage.setItem("nickname", nickname);
-  localStorage.setItem("avatar", profilePic || "../img/user-solid.svg");
-
-  const socket = io();
-
-  socket.emit('player-join', {
-    nickname: nickname,
-    avatar: profilePic || "../img/user-solid.svg"
-  });
-
-  socket.on('player-joined', () => {
-    window.location.href = "./index.html";
-  });
+  } 
+  localStorage.setItem('nickname', nickname);
+  localStorage.setItem('profilePic', imageFiles[imageIndex].split('/').pop());
+  window.location.href = "./index.html";
 });
 
 
@@ -41,22 +38,26 @@ const rightArrow = select(".right-arrow");
 const leftArrow = select(".left-arrow");
 
 const imageFiles = ["../img/ded.png", "../img/devil.png", "../img/happy.png", "../img/star.png", "../img/think.png", "../img/wink.png", "../img/worry.png"];
-avatar.src = imageFiles[imageIndex];
+profilePic = imageFiles[imageIndex];
+avatar.src = profilePic;
+
 listen("click", rightArrow,() => {
   imageIndex++;
   console.log("imageIndex");
-  if (imageIndex === 6) {
+  if (imageIndex === imageFiles.length) {
     imageIndex = 0;
   }
   profilePic = imageFiles[imageIndex];
   avatar.src = profilePic;
+  console.log("Selected avatar index:", imageIndex);
 });
 
 listen("click", leftArrow,() => {
   imageIndex--;
-  if (imageIndex === 0) {
-    imageIndex = 6;
+  if (imageIndex < 0) {
+    imageIndex = imageFiles.length - 1;
   }
   profilePic = imageFiles[imageIndex];
   avatar.src = profilePic;
+  console.log("Selected avatar index:", imageIndex);
 });

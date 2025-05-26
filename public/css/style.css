@@ -59,8 +59,8 @@
 }
 .circle {
   border-radius: 50%;
-  width: 105px;
-  height: 105px;
+  width: 100px;
+  height: 100px;
   display: flex;
   justify-content: center;
   background-color: var(--clr-secondary);
@@ -297,4 +297,60 @@ Game Play
 .correct {
   color: green;
   font-weight: bold;
+}
+
+#waitingMessage {
+  color: #f2f6f4;
+  font-weight: 600;
+  font-size: 2rem;
+}
+
+.pause-banner {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* background-color: rgba(0, 0, 0, 0.85); */
+  color: #bbd876;
+  padding: 20px 40px;
+  font-size: 32px;
+  font-weight: 600;
+  border-radius: 12px;
+  z-index: 1000;
+  display: none;
+}
+
+.StopMsg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* background-color: rgba(0, 0, 0, 0.85); */
+  color: #bbd876;
+  padding: 20px 40px;
+  font-size: 32px;
+  font-weight: 600;
+  /* border-radius: 12px; */
+  z-index: 1000;
+  display: none;
+}
+
+.warning-msg {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* background-color: rgba(0, 0, 0, 0.85); */
+  color: #bbd876;
+  padding: 20px 40px;
+  font-size: 32px;
+  font-weight: 600;
+  border-radius: 12px;
+  z-index: 1000;
+  display: none;
+}
+
+#countdown {
+  color: #f2f6f4;
+  font-size: 2rem;
 }

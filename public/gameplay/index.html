@@ -23,50 +23,29 @@
   <header>
     <h1>Cyber Clash</h1>
   </header>
-  <main>
-    <!--Here the player will have to enter their name and choose profile images (will hardcode options)-->
-    <section class="player-lobby f-col">
-      <div class="avatar-wrapper">
-        <img src="../img/user-solid.svg">
-      </div>
-      <button class="select-pic">Choose</button>
-      <input id="playerName" placeholder="Enter your name" class="name-entry">
-      <button class="select-name">Enter</button>
-    </section>
-    <!--
-      Here will be the game area. The formatting of this will depend on the type of question. 
-      Whe could create formatting for each type of question and then only make the appropriate one visible
-      or we can change the question formatting dynamically with JS and css classes
-    -->
-
-    <div id="questionArea" class="question-wrapper flex">
-      <p class="question-text">Blah blah blah, which is it?</p>
-    </div>
-    
-    <input id="answer" placeholder="Your answer">
-    <button class="submit">Submit</button>
+  <main class="f-col">
+    <div class="StopMsg"></div>
     <section class="question-display f-col">
+      <div id="pauseMessage" class="pause-banner">⏸ Quiz Paused</div>
+      <p class ="warning-msg">Please select an answer!</p>
+      <div id="countdown">⏳ Time left: 60s</div>
       <div class="question-wrapper flex">
-        <p class="question-text">Blah blah blah, which is it?</p>
+        <p class="question-text">Waiting for the questions...</p>
       </div>
       <div class="multiple-choice-wrapper">
         <div class="option-one">
-          <p class="opt-one-txt">Sample 1</p>
+          <p class="opt-one-txt">Loading..</p>
         </div>
         <div class="option-two">
-          <p class="opt-two-txt">Sample 2</p>
+          <p class="opt-two-txt">Loading..</p>
         </div>
         <div class="option-three">
-          <p class="opt-three-txt">Sample 3</p>
+          <p class="opt-three-txt">Loading..</p>
         </div>
         <div class="option-four">
-          <p class="opt-four-txt">Sample 4</p>
+          <p class="opt-four-txt">Loading..</p>
         </div>
       </div>
-      <!-- <div id="tf-options" style="display: none;">
-        <label><input type="radio" name="answer" value="true" /> True</label><br/>
-        <label><input type="radio" name="answer" value="false" /> False</label>
-      </div> -->
       <div class="true-false-wrapper" style="display: none;">
         <div class="option-one">
           <p class="opt-one-txt">True</p>
@@ -75,7 +54,6 @@
           <p class="opt-two-txt">False</p>
         </div>
       </div>
-      <!-- <input id="answer" placeholder="Your answer"> -->
       <button class="submit">Submit</button>
     </section>
   </main>

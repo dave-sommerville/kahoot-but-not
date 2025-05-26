@@ -33,43 +33,30 @@
         <div class="center f-col">
           <h4 class="player-one-status">Unoccupied</h4>
           <div class="circle">
-            <img class="profile" src="../img/user-solid.svg">
+            <img class="profile player-one-avatar" src="../img/user-solid.svg">
           </div>
-          <p class="player-one">Unnamed</p>
+          <p class="player-one">Not-joined</p>
         </div>
         <div class="center f-col">
           <h4 class="player-two-status">Unoccupied</h4>
           <div class="circle">
-            <img class="profile" src="../img/user-solid.svg">
+            <img class="profile player-two-avatar" src="../img/user-solid.svg">
           </div>
-          <p class="player-two">Unnamed</p>
+          <p class="player-two">Not-joined</p>
         </div>
         <div class="center f-col">
           <h4 class="player-three-status">Unoccupied</h4>
           <div class="circle">
-            <img class="profile" src="../img/user-solid.svg">
+            <img class="profile player-three-avatar" src="../img/user-solid.svg">
           </div>
-          <p class="player-three">Unnamed</p>
+          <p class="player-three">Not-joined</p>
         </div>
       </div>
-    <div id="lobby-controls">
-      <button id="startGameBtn">Start Game</button>
-      <button id="cancelGameBtn">Cancel Game</button>
-    </div>
-    </section>
-    <!-- Add a new question  -->
-    <section class="add-question">
-      <h3>Add a New Question</h3>
-      <!-- <form id="questionForm">
-        <input type="text" id="question_text" placeholder="Question text" required><br>
-        <input type="text" id="option_a" placeholder="Option A" required><br>
-        <input type="text" id="option_b" placeholder="Option B" required><br>
-        <input type="text" id="option_c" placeholder="Option C" required><br>
-        <input type="text" id="option_d" placeholder="Option D" required><br>
-        <input type="text" id="correct_option" placeholder="Correct Option (e.g. A)" required><br>
-        <button type="submit">Add Question</button>
-      </form> -->
-      <p id="formStatus"></p>
+      <div>
+        <button class="start">Start</button>
+        <button class="pause">Pause</button>
+        <button class="stop">Stop</button>
+      </div>
     </section>
     <section class="score-display">
       <h3 class="score-trigger pointer hover">
@@ -78,7 +65,6 @@
       <div class="high-scores" id="leaderboard">
       </div>
     </section>
-    <button class="view">View Questions</button>
   </main>
 </body>
 </html>

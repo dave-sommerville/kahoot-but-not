@@ -8,7 +8,8 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL UNIQUE,
       score INTEGER DEFAULT 0,
-      correct_answer INTEGER DEFAULT 0
+      correct_answer INTEGER DEFAULT 0,
+      avatar TEXT DEFAULT 'default-avatar.svg'
     )
   `);
 

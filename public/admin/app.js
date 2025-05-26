@@ -1,9 +1,5 @@
 'use strict';
 
-/*------------------------------------------------------------------------->
-  Utility Functions 
-<-------------------------------------------------------------------------*/
-
 function select(selector, scope = document) {
   return scope.querySelector(selector);
 }
@@ -16,50 +12,73 @@ function isImageFile(file) {
   return file && file.type.startsWith('image');
 }
 
+const socket = io(); 
+const scoreTrigger = select('.score-trigger');
+const scoreDisplay = select('.score-display');
+const startBtn = select('.start');
+const pauseBtn = select('.pause');
+const stopBtn = select('.stop');
+const playerName = localStorage.getItem('nickname') || 'Unknown';
+const selectedAvatar = localStorage.getItem('profilePic') || 'user-solid.svg'; 
 
-function sendAdminCommand(cmd) {
-  socket.emit('admin-action', cmd); // e.g. "skip", "restart", etc.
+
+if (playerName && playerName !== 'Unknown') {
+  socket.emit('player-join', { name: playerName, avatar: selectedAvatar });
+  console.log(`Re-joined as ${playerName} with avatar ${selectedAvatar}`);
 }
-const socket = io(); // default namespace
 
-const startBtn = document.getElementById('startGameBtn');
-const cancelBtn = document.getElementById('cancelGameBtn');
+
+const playerNameEls = [
+  select('.player-one'),
+  select('.player-two'),
+  select('.player-three')
+];
+const playerStatusEls = [
+  select('.player-one-status'),
+  select('.player-two-status'),
+  select('.player-three-status')
+];
+const playerImgEls = [
+  select('.player-one-avatar'),
+  select('.player-two-avatar'),
+  select('.player-three-avatar')
+];
+socket.on('viewer-update-players', (players) => {
+
+  players.forEach((player, index) => {
+    if (!playerNameEls[index]) return;
+    console.log("Rendering player:", player.name, "Avatar:", player.avatar);
+    if (playerNameEls[index]) {
+      playerNameEls[index].textContent = player.name || "Unnamed";
+      playerStatusEls[index].textContent = "Ready";
+      playerImgEls[index].src = player.avatar ? `../img/${player.avatar}` : '../img/user-solid.svg';
+      console.log(`✅ Player ${index + 1} => Name: ${player.name}, Avatar: ${player.avatar}`);
+    }
+  });
+});
 
 listen('click', startBtn, () => {
-  socket.emit('admin-action', { type: 'start-game' });
+  socket.emit('startGame');
 });
 
-listen('click', cancelBtn, () => {
-  socket.emit('admin-action', { type: 'cancel-game' });
+listen('click', pauseBtn, () => {
+  socket.emit('pauseGame');
 });
 
-// Request the leaderboard when the page loads
+listen('click', stopBtn, () => {
+  socket.emit('stopGame');
+});
+
 socket.emit('get-leaderboard');
 
-// Handle leaderboard update
 socket.on('leaderboard-update', (players) => {
   console.log('🏆 Received leaderboard update:', players);
   updateLeaderboard(players);
   updateLobbyPlayers(players);  // new function to update name display
 });
 
-
 socket.on('new-question', (question) => {
-  console.log("🟢 New Question Received:", question);
-
-  document.querySelector('.question-text').innerText = question.question_text;
-  document.querySelector('.opt-one-txt').innerText = question.option_a;
-  document.querySelector('.opt-two-txt').innerText = question.option_b;
-  document.querySelector('.opt-three-txt').innerText = question.option_c;
-  document.querySelector('.opt-four-txt').innerText = question.option_d;
-  document.getElementById('answer').value = '';
-});
-
-
-// Listen for question updates from the server
-socket.on('new-question', (question) => {
-  console.log("Got questions!"); 
-  const questionText = document.getElementById('question-text');
+  const questionText = select('#question-text');
   if (questionText && question && question.question_text) {
     questionText.textContent = question.question_text;
   } else {
@@ -67,56 +86,20 @@ socket.on('new-question', (question) => {
   }
 });
 
-// Leaderboard update logic
 function updateLeaderboard(players) {
-  const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = ''; // Clear existing content
+  const leaderboard = select('#leaderboard');
+  leaderboard.innerHTML = ''; 
 
-  // Optional: sort players by score in descending order
-  // players.sort((a, b) => b.score - a.score);
-
-  players.forEach((player, index) => {
-    const entry = document.createElement('div');
-    entry.textContent = `${index + 1}. ${player.name} - ${player.score} pts`;
-    leaderboard.appendChild(entry);
+  players.sort((a, b) => b.score - a.score);
+  players.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.innerHTML =
+      `<img src="../img/${p.avatar}">
+       ${i+1}. ${p.name} – ${p.score} pts`;
+    leaderboard.appendChild(div);
   });
 }
 
-const playerClassMap = ['one', 'two', 'three'];
-
-function updateLobbyPlayers(players) {
-  for (let i = 0; i < 3; i++) {
-    const name = players[i]?.name || "Unnamed";
-    const status = players[i] ? "Connected" : "Unoccupied";
-
-    const nameEl = document.querySelector(`.player-${playerClassMap[i]}`);
-    const statusEl = document.querySelector(`.player-${playerClassMap[i]}-status`);
-
-    if (nameEl) nameEl.textContent = name;
-    if (statusEl) statusEl.textContent = status;
-  }
-}
-
-const scoreTrigger = select('.score-trigger');
-const scoreDisplay = select('.score-display');
 listen("click", scoreTrigger, () =>{
   scoreDisplay.classList.toggle('open');
 });
-
-const form = document.getElementById('questionForm');
-const formStatus = document.getElementById('formStatus');
-
-// form.addEventListener('submit', (e) => {
-//   e.preventDefault();
-
-//   const question = {
-//     question_text: document.getElementById('question_text').value,
-//     option_a: document.getElementById('option_a').value,
-//     option_b: document.getElementById('option_b').value,
-//     option_c: document.getElementById('option_c').value,
-//     option_d: document.getElementById('option_d').value,
-//     correct_option: document.getElementById('correct_option').value.toUpperCase()
-//   };
-
-//   socket.emit('add-question', question);
-// });
