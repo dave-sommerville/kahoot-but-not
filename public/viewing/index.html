@@ -24,13 +24,14 @@
   <header>
     <h1>Cyber Clash</h1>
   </header>
-  <main class="f-col">
-    <!--  Lobby will hold placeholders for participants when game is not running. As users join it will update the chosen
-          avatar and user name. Once three users have joined (or at least one) the admin can start the game. 
-          I think we should leave the game control only on the admin frontend.          
+  <main class="flex center gap">
+    <!--  
+      Lobby will hold placeholders for participants when game is not running. As users join it will update the chosen
+      avatar and user name. Once three users have joined (or at least one) the admin can start the game. 
+      I think we should leave the game control only on the admin frontend.          
     -->
-    <section class="lobby f-col">
-      <div class="flex sp-even">
+    <section class="f-col center">
+      <div class="lobby tech-inset flex sp-even">
         <div class="center f-col">
           <h4 class="player-one-status">Unoccupied</h4>
           <div class="circle">
@@ -53,20 +54,15 @@
           <p class="player-three">Not-joined</p>
         </div>
       </div>
-    </section>
-    <section class="question-display-viewing f-col">
+    <!-- </section>
+    <section class="question-display-viewing f-col"> -->
       <h3>Current Question:</h3>
       <div class="question-wrapper flex">
         <p id="question-text">Waiting for the question...</p>
       </div>
-    <section class="score-display">
-      <h3 class="score-trigger pointer hover">
-        High Scores
-      </h3>
-      <div class="high-scores" id="leaderboard">
-      </div>
     </section>
-    <button class="view">View Questions</button>
+    <section class="high-scores f-col" id="leaderboard">
+    </section>
   </main>
 </body>
 </html>
