@@ -11,7 +11,7 @@ const socket = io();
 const mcqWrapper = document.querySelector('.multiple-choice-wrapper');
 const tfWrapper = document.querySelector('.true-false-wrapper');
 const questiontxt =  document.querySelector('.question-text');
-const allQuestype = document.querySelectorAll('.multiple-choice-wrapper div, .true-false-wrapper div');
+const allQuestype = document.querySelectorAll('.multiple-choice div, .true-false div');
 const selectedElements = document.querySelectorAll('.selected');
 const submitBtn = document.querySelector('.submit');
 const pauseMsg = document.getElementById('pauseMessage');
@@ -124,16 +124,19 @@ socket.on('answer-feedback', (data) => {
   const userAnswer = data.userAnswer.toLowerCase();
   const correctAnswer = data.correctAnswer.toLowerCase();
   const isCorrect = userAnswer === correctAnswer;
-
+  const wrongSound = new Audio("../media/wrong-47985.mp3");
+  const rightSound = new Audio("../media/collect-5930.mp3");
   allQuestype.forEach(option => {
     const optionText = option.querySelector('p').innerText.trim().toLowerCase();
-
     if (optionText === correctAnswer) {
       option.classList.add('correct');
-    }
-
-    if (optionText === userAnswer && userAnswer !== correctAnswer) {
+    } else if (optionText === userAnswer && userAnswer !== correctAnswer) {
       option.classList.add('wrong');
+    }
+    if (isCorrect) {
+      rightSound.play();
+    } else {
+      wrongSound.play();
     }
   });
 
