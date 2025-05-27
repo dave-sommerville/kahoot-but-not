@@ -35,39 +35,47 @@
       <span>H</span>
     </h1>
   </header>
-  <main class="f-col">
+  <main class="f-col container">
     <div class="StopMsg"></div>
     <section class="question-display f-col">
       <div id="pauseMessage" class="pause-banner">⏸ Quiz Paused</div>
       <p class ="warning-msg">Please select an answer!</p>
-      <div id="countdown">⏳ Time left: 60s</div>
+      <div class="countdown">
+        <div class="glow-text">Time Left:</div>
+        <div id="countdown" class="glow-text">60s</div>
+      </div>
       <div class="question-wrapper flex">
         <p class="question-text">Waiting for the questions...</p>
       </div>
       <div class="multiple-choice-wrapper">
-        <div class="option-one">
-          <p class="opt-one-txt">Loading..</p>
-        </div>
-        <div class="option-two">
-          <p class="opt-two-txt">Loading..</p>
-        </div>
-        <div class="option-three">
-          <p class="opt-three-txt">Loading..</p>
-        </div>
-        <div class="option-four">
-          <p class="opt-four-txt">Loading..</p>
+        <div class="multiple-choice">
+          <div class="option-one">
+            <p class="opt-one-txt">Loading..</p>
+          </div>
+          <div class="option-two">
+            <p class="opt-two-txt">Loading..</p>
+          </div>
+          <div class="option-three">
+            <p class="opt-three-txt">Loading..</p>
+          </div>
+          <div class="option-four">
+            <p class="opt-four-txt">Loading..</p>
+          </div>
         </div>
       </div>
       <div class="true-false-wrapper" style="display: none;">
-        <div class="option-one">
-          <p class="opt-one-txt">True</p>
-        </div>
-        <div class="option-two">
-          <p class="opt-two-txt">False</p>
+        <div class="true-false">
+          <div class="option-one">
+            <p class="opt-one-txt">True</p>
+          </div>
+          <div class="option-two">
+            <p class="opt-two-txt">False</p>
+          </div>
         </div>
       </div>
-      <button class="submit btn-3d">Submit</button>
     </section>
+    <button class="submit btn-3d">Submit</button>
+
   </main>
   <script src="/socket.io/socket.io.js"></script>
 </body>

@@ -27,7 +27,7 @@ const countdownEl = document.getElementById("countdown");
 
 const countdownInterval = setInterval(() => {
   countdown--;
-  countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+  countdownEl.textContent = `${countdown}s`;
 
   if (countdown <= 0) {
     clearInterval(countdownInterval);
