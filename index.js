@@ -292,8 +292,8 @@ io.on('connection', (socket) => {
 });
 
 // --- Start Server ---
-server.listen(PORT, () => {
-  console.log(`Server running at http://10.42.0.1:${PORT}`);
+server.listen(PORT, 'localhost', () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
 setInterval(emitLeaderboardUpdate, 5000);
 // setInterval(() => {
