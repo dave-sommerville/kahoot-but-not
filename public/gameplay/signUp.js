@@ -25,9 +25,24 @@ selectName.addEventListener('click', () => {
     alert("Please enter your name!");
     return;
   } 
-  localStorage.setItem('nickname', nickname);
-  localStorage.setItem('profilePic', imageFiles[imageIndex].split('/').pop());
-  window.location.href = "./index.html";
+  //new
+  // Emit join request to server
+  socket.emit('player-join', { name: nickname, avatar: profilePic  });
+  // Listen for errors specifically for this join attempt
+  socket.once('player-error', (message) => {
+    alert(message);  // Show the error message if the name is taken or other error
+  });
+  // localStorage.setItem('nickname', nickname);
+  // localStorage.setItem('profilePic', imageFiles[imageIndex].split('/').pop());
+  // window.location.href = "./index.html";
+   // Listen once for successful join confirmation
+  socket.once('player-joined', (data) => {
+    // Save info locally only on successful join
+    localStorage.setItem('nickname', data.name);
+    localStorage.setItem('profilePic', data.avatar);
+    // Now redirect only after success
+    window.location.href = "./index.html";
+  });
 });
 
 

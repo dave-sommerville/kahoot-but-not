@@ -21,20 +21,41 @@ const warningMsg = document.querySelector(".warning-msg");
 
 let nickname = localStorage.getItem('nickname') || "";
 let selectedavtar = localStorage.getItem('profilePic') || 'user.solid.png';
-
+//new
 let countdown = 60;
+let countdownInterval = null;
 const countdownEl = document.getElementById("countdown");
 
-const countdownInterval = setInterval(() => {
-  countdown--;
+function startCountdown(duration = 60) {
+  clearInterval(countdownInterval);
+  countdown = duration;
   countdownEl.textContent = `⏳ Time left: ${countdown}s`;
 
-  if (countdown <= 0) {
-    clearInterval(countdownInterval);
-  }
-}, 1000);
+  countdownInterval = setInterval(() => {
+    countdown--;
+    countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+    }
+  }, 1000);
+}
+//|^ new
+// let countdown = 60;
+// const countdownEl = document.getElementById("countdown");
+
+// const countdownInterval = setInterval(() => {
+//   countdown--;
+//   countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+
+//   if (countdown <= 0) {
+//     clearInterval(countdownInterval);
+//   }
+// }, 1000);
 
 socket.on("time-up", () => {
+  //new
+  clearInterval(countdownInterval); 
   quesDisplay.style.display = 'none';
   StopMsg.style.display = 'block';
   StopMsg.innerText = "⏰ Time’s up! Thanks for playing.";
@@ -63,6 +84,8 @@ if (!nickname) {
 
   socket.on('gamePaused', () => {
     console.log('⏸️ Game paused!');
+    //new
+    clearInterval(countdownInterval);
     submitBtn.disabled = true;
     pauseMsg.style.display = 'block';
     allQuestype.forEach(option => option.style.pointerEvents = 'none');
@@ -70,6 +93,8 @@ if (!nickname) {
 
   socket.on('gameStopped', () => {
     console.log('🔴 Game stopped!');
+    //new
+    clearInterval(countdownInterval);
     submitBtn.disabled = true;
     pauseMsg.style.display = 'none';
     quesDisplay.style.display = 'none';
@@ -100,6 +125,15 @@ socket.on('new-question', (question) => {
   selectedElements.forEach(el => el.classList.remove('selected', 'wrong', 'correct'));
   selectedAnswer = null;
   questiontxt.innerText = question.question_text;
+  //new
+  // startCountdown(60);
+  // ✅ Calculate remaining time based on question.startTime
+  let remaining = 60;
+  if (question.startTime) {
+    const elapsed = Math.floor((Date.now() - question.startTime) / 1000);
+    remaining = Math.max(60 - elapsed, 0);
+  }
+  startCountdown(remaining);//
 
   if (question.question_type === 'tf') {
     mcqWrapper.style.display = 'none';

@@ -129,6 +129,13 @@ io.on('connection', (socket) => {
       return;
     }
 
+    //new
+    // --- Add uniqueness check here ---
+    const nameTaken = Object.values(players).some(player => player.name === nickname);
+    if (nameTaken) {
+      socket.emit('player-error', 'Name is already in use. Please use other name');
+      return;  // Reject join
+    }
     socket.nickname = nickname;
     socket.avatar = avatar;
 

@@ -84,32 +84,48 @@ socket.on('viewer-update-players', (players) => {
     document.querySelector('.player-two-avatar'),
     document.querySelector('.player-three-avatar')
   ];
+  //----- correct-----------
+  // for (let i = 0; i < 3; i++) {
+  //   const player = players[i];
 
-  players.forEach((player, index) => {
-    console.log("Rendering player:", player.name, "Avatar:", player.avatar);
-    if (playerNameEls[index]) {
-      playerNameEls[index].textContent = player.name || "Unnamed";
-      playerStatusEls[index].textContent = "Ready";
+  //   if (player) {
+  //     playerNameEls[i].textContent = player.name || "Unnamed";
+  //     playerStatusEls[i].textContent = "Ready";
+  //     playerImgEls[i].src = player.avatar ? `../img/${player.avatar}` : "/img/user-solid.svg";
+  //     console.log(`✅ Slot ${i + 1} => ${player.name} (${player.avatar})`);
+  //   } else {
+  //     playerNameEls[i].textContent = "Not Joined";
+  //     playerStatusEls[i].textContent = "Waiting...";
+  //     playerImgEls[i].src = "/img/user-solid.svg";
+  //     console.log(`🟨 Slot ${i + 1} => Empty (placeholder shown)`);
+  //   }
+  // }
+  // Ensure only the latest 3 players are shown
+  const visiblePlayers = players.slice(-3); // Always show latest 3 joined
 
-      if (player.avatar) {
-        playerImgEls[index].src = `../img/${player.avatar}`;
-        console.log("Image source set to:", playerImgEls[index].src);
-      } else {
-        playerImgEls[index].src = '/img/user-solid.svg';
-      }
-      console.log(`✅ Player ${index + 1} => Name: ${player.name}, Avatar: ${player.avatar}`);
+  for (let i = 0; i < 3; i++) {
+    const player = visiblePlayers[i];
+    
+    if (player) {
+      playerNameEls[i].textContent = player.name || "Unnamed";
+      playerStatusEls[i].textContent = "Ready";
+      playerImgEls[i].src = player.avatar ? `../img/${player.avatar}` : "/img/user-solid.svg";
+    } else {
+      playerNameEls[i].textContent = "Not Joined";
+      playerStatusEls[i].textContent = "Waiting...";
+      playerImgEls[i].src = "/img/user-solid.svg";
     }
-  });
-});
-
-
-socket.on('new-question', (question) => {
-  if (questionText && question && question.question_text) {
-    questionText.textContent = question.question_text;
-  } else {
-    questionText.textContent = 'No questions available';
   }
 });
+
+
+// socket.on('new-question', (question) => {
+//   if (questionText && question && question.question_text) {
+//     questionText.textContent = question.question_text;
+//   } else {
+//     questionText.textContent = 'No questions available';
+//   }
+// });
 
 socket.emit('get-question');
 
