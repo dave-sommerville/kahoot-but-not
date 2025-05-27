@@ -146,7 +146,7 @@ io.on('connection', (socket) => {
     }
 
     io.emit('viewer-update-players', viewerPlayers);
-
+  
 
     //new
     players[socket.id] = {
@@ -278,6 +278,14 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('get-question', () => {
+    if (currentQuestion) {
+      socket.emit('new-question', currentQuestion);
+    } else {
+      socket.emit('new-question', { question_text: 'No question currently active.' });
+    }
+  });
+
   socket.on('get-leaderboard', () => {
     console.log(" Fetching leaderboard...");
     getLeaderboard((leaderboard) => {
@@ -299,8 +307,8 @@ io.on('connection', (socket) => {
 });
 
 // --- Start Server ---
-server.listen(PORT, 'localhost', () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server running at http://192.168.69.157:${PORT}`);
 });
 setInterval(emitLeaderboardUpdate, 5000);
 // setInterval(() => {

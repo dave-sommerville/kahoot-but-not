@@ -11,7 +11,7 @@ const socket = io();
 const mcqWrapper = document.querySelector('.multiple-choice-wrapper');
 const tfWrapper = document.querySelector('.true-false-wrapper');
 const questiontxt =  document.querySelector('.question-text');
-const allQuestype = document.querySelectorAll('.multiple-choice-wrapper div, .true-false-wrapper div');
+const allQuestype = document.querySelectorAll('.multiple-choice div, .true-false div');
 const selectedElements = document.querySelectorAll('.selected');
 const submitBtn = document.querySelector('.submit');
 const pauseMsg = document.getElementById('pauseMessage');
@@ -29,11 +29,11 @@ const countdownEl = document.getElementById("countdown");
 function startCountdown(duration = 60) {
   clearInterval(countdownInterval);
   countdown = duration;
-  countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+  countdownEl.textContent = `${countdown}s`;
 
   countdownInterval = setInterval(() => {
     countdown--;
-    countdownEl.textContent = `⏳ Time left: ${countdown}s`;
+    countdownEl.textContent = `${countdown}s`;
 
     if (countdown <= 0) {
       clearInterval(countdownInterval);

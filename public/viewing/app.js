@@ -69,7 +69,7 @@ socket.on('leaderboard-update', (players) => {
 });
 
 socket.on('viewer-update-players', (players) => {
-  const playerNameEls = [
+  const playerNameEls = [  
     document.querySelector('.player-one'),
     document.querySelector('.player-two'),
     document.querySelector('.player-three')
@@ -119,13 +119,13 @@ socket.on('viewer-update-players', (players) => {
 });
 
 
-// socket.on('new-question', (question) => {
-//   if (questionText && question && question.question_text) {
-//     questionText.textContent = question.question_text;
-//   } else {
-//     questionText.textContent = 'No questions available';
-//   }
-// });
+socket.on('new-question', (question) => {
+  if (questionText && question && question.question_text) {
+    questionText.textContent = question.question_text;
+  } else {
+    questionText.textContent = 'No questions available';
+  }
+});
 
 socket.emit('get-question');
 
